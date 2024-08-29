@@ -1,0 +1,89 @@
+-- Create a ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "TopLeftGui"
+screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- Create a Frame to serve as the white background
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0.1, 0, 0.05, 0)  -- Size (10% width, 5% height)
+frame.Position = UDim2.new(0.01, 0, 0.07, 0)  -- Moved 7x down from the original position
+frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)  -- White color
+frame.Parent = screenGui
+
+-- Add rounded corners
+local uicorner = Instance.new("UICorner")
+uicorner.CornerRadius = UDim.new(0.2, 0)  -- Rounded corners
+uicorner.Parent = frame
+
+-- Create a TextLabel for the text
+local textLabel = Instance.new("TextLabel")
+textLabel.Size = UDim2.new(1, 0, 1, 0)  -- Fill the entire frame
+textLabel.BackgroundTransparency = 1  -- Make the background transparent
+textLabel.Text = "Killaura: Off"
+textLabel.TextColor3 = Color3.fromRGB(0, 0, 0)  -- Black text
+textLabel.Font = Enum.Font.SourceSans  -- Default Roblox font
+textLabel.TextScaled = true  -- Scale text to fit the label
+textLabel.Parent = frame
+
+-- Add a TextButton to detect clicks
+local clickDetector = Instance.new("TextButton")
+clickDetector.Size = UDim2.new(1, 0, 1, 0)  -- Fill the entire frame
+clickDetector.BackgroundTransparency = 1  -- Make the background transparent
+clickDetector.Text = ""  -- No text on the button
+clickDetector.Parent = frame
+
+-- Initialize variables
+local isKillauraOn = false
+local args = {
+    [1] = 1,
+    [2] = nil -- Initialize with nil, will be updated later
+}
+
+-- Handle the click event
+clickDetector.MouseButton1Click:Connect(function()
+    if isKillauraOn then
+        textLabel.Text = "Killaura: Off"
+        isKillauraOn = false
+    else
+        textLabel.Text = "Killaura: On"
+        isKillauraOn = true
+
+        -- Start the remote event functionality
+        coroutine.wrap(function()
+            while isKillauraOn do
+                local Players = game:GetService("Players")
+                local localPlayer = Players.LocalPlayer
+
+                -- Find the nearest player within range
+                local nearestPlayer = nil
+                local nearestDistance = math.huge
+                for _, player in pairs(Players:GetPlayers()) do
+                    if player ~= localPlayer then
+                        local character = player.Character
+                        if character then
+                            local distance = (character.HumanoidRootPart.Position - localPlayer.Character.HumanoidRootPart.Position).magnitude
+                            if distance <= 13 and distance < nearestDistance then
+                                nearestDistance = distance
+                                nearestPlayer = player
+                            end
+                        end
+                    end
+                end
+
+                -- Update the args table with the nearest player if within range
+                if nearestPlayer then
+                    args[2] = nearestPlayer
+                else
+                    args[2] = nil
+                end
+
+                -- Fire the remote event with the updated args
+                game:GetService("ReplicatedStorage").remoteInterface.interactions.meleePlayer:FireServer(unpack(args))
+
+                -- Wait for 0.1 seconds before checking again
+                wait(0.1)
+            end
+        end)()
+    end
+end)
+
