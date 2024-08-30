@@ -16,7 +16,7 @@ local function isWhitelisted(userId)
 end
 
 if isWhitelisted(player.UserId) then
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/LIghtningPlayz329/Cyber/main/Beta",true))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/LIghtningPlayz329/Cyber/main/Script",true))()
 else
     player:Kick("Buy The script [Cyber]")
 end
