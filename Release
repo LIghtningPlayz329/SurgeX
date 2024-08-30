@@ -1,0 +1,181 @@
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+
+local Window = Fluent:CreateWindow({
+    Title = "Cyber",
+    SubTitle = "by ahmed",
+    TabWidth = 135,
+    Size = UDim2.fromOffset(480, 330),  -- Window size
+    Acrylic = true,
+    Theme = "Darker",
+    MinimizeKey = Enum.KeyCode.LeftAlt
+})
+
+local Tabs = {
+    Combat = Window:AddTab({ Title = "Combat", Icon = "swords" }),
+    Misc = Window:AddTab({ Title = "Misc", Icon = "hammer" }),
+    Player = Window:AddTab({ Title = "Player", Icon = "user" }),
+    Visual = Window:AddTab({ Title = "Visual", Icon = "eye" })
+}
+
+-- Adding a paragraph in the Combat Tab
+Tabs.Combat:AddParagraph({
+    Title = "Player Aura",
+    Content = "Below you can find the Player Aura Settings."
+})
+
+-- Initialize variables
+local isTeleportAuraOn = false
+local isKillauraOn = false
+local orbitConnection = nil
+local args = {
+    [1] = 1,
+    [2] = nil -- Initialize with nil, will be updated later
+}
+
+-- Function to toggle Teleport Aura
+local function toggleTeleportAura(state)
+    if state then
+        if isTeleportAuraOn then return end
+        isTeleportAuraOn = true
+        -- Execute the desired script when Teleport Aura is turned on
+        print("Teleport Aura is now ON")  -- Placeholder for the actual script
+
+        -- Add the orbit functionality
+        local Players = game:GetService("Players")
+        local localPlayer = Players.LocalPlayer
+        local character = localPlayer.Character
+        local humanoidRootPart = character.HumanoidRootPart
+        local RunService = game:GetService("RunService")
+
+        local function updateOrbit()
+            -- Find the nearest living player within range
+            local nearestPlayer = nil
+            local nearestDistance = math.huge
+            for _, player in pairs(Players:GetPlayers()) do
+                if player ~= localPlayer then
+                    local character = player.Character
+                    if character and character:FindFirstChild("Humanoid") and character.Humanoid.Health > 0 then
+                        local distance = (character.HumanoidRootPart.Position - humanoidRootPart.Position).magnitude
+                        if distance <= 16 and distance < nearestDistance then
+                            nearestDistance = distance
+                            nearestPlayer = player
+                        end
+                    end
+                end
+            end
+
+            -- Orbit the nearest living player within range
+            if nearestPlayer then
+                local nearestCharacter = nearestPlayer.Character
+                local nearestHumanoidRootPart = nearestCharacter.HumanoidRootPart
+                local orbitPosition = nearestHumanoidRootPart.Position + Vector3.new(0, 10, 0) -- increased height by a lot
+                local orbitRadius = 5 -- adjust the radius here
+                local orbitSpeed = 24 -- increased spin speed
+
+                local angle = tick() * orbitSpeed
+                local x = math.cos(angle) * orbitRadius
+                local z = math.sin(angle) * orbitRadius
+                humanoidRootPart.CFrame = CFrame.new(orbitPosition + Vector3.new(x, 0, z))
+            end
+        end
+
+        -- Connect the updateOrbit function to Heartbeat
+        orbitConnection = RunService.Heartbeat:Connect(updateOrbit)
+
+        -- Start the additional script functionality
+        coroutine.wrap(function()
+            while isTeleportAuraOn do
+                -- Find the nearest player within range
+                local nearestPlayer = nil
+                local nearestDistance = math.huge
+                for _, player in pairs(Players:GetPlayers()) do
+                    if player ~= localPlayer then
+                        local character = player.Character
+                        if character then
+                            local distance = (character.HumanoidRootPart.Position - localPlayer.Character.HumanoidRootPart.Position).magnitude
+                            if distance <= 16 and distance < nearestDistance then
+                                nearestDistance = distance
+                                nearestPlayer = player
+                            end
+                        end
+                    end
+                end
+
+                -- Update the args table with the nearest player if within range
+                if nearestPlayer then
+                    args[2] = nearestPlayer
+                else
+                    args[2] = nil
+                end
+
+                -- Fire the remote event with the updated args
+                game:GetService("ReplicatedStorage").remoteInterface.interactions.meleePlayer:FireServer(unpack(args))
+
+                -- Wait for 0.1 seconds before checking again
+                wait(0.1)
+            end
+        end)()
+    else
+        if not isTeleportAuraOn then return end
+        isTeleportAuraOn = false
+        -- Remove the orbit update function when turning off
+        if orbitConnection then
+            orbitConnection:Disconnect()
+            orbitConnection = nil
+        end
+    end
+end
+
+-- Function to toggle Killaura
+local function toggleKillaura(state)
+    if state then
+        if isKillauraOn then return end
+        isKillauraOn = true
+        -- Execute the desired script when Killaura is turned on
+        print("Killaura is now ON")  -- Placeholder for the actual script
+
+        -- Implement Killaura functionality here, if needed
+    else
+        if not isKillauraOn then return end
+        isKillauraOn = false
+        -- Disable Killaura functionality here, if needed
+    end
+end
+
+-- Create and setup the Teleport Aura toggle
+local TeleportAuraToggle = Tabs.Combat:AddToggle("TeleportAuraToggle", { Title = "Teleport Aura", Default = false })
+TeleportAuraToggle:OnChanged(function(value)
+    toggleTeleportAura(value)
+end)
+
+-- Create and setup the Killaura toggle
+local KillauraToggle = Tabs.Combat:AddToggle("KillauraToggle", { Title = "Killaura", Default = false })
+KillauraToggle:OnChanged(function(value)
+    toggleKillaura(value)
+end)
+
+-- Remove configuration and theme management from Misc tab
+Tabs.Misc:Clear()  -- This will clear all elements from the Misc tab
+
+-- Save Manager Setup
+SaveManager:SetLibrary(Fluent)
+SaveManager:IgnoreThemeSettings()
+SaveManager:SetFolder("GameConfigs")
+SaveManager:BuildConfigSection(Tabs.Misc)
+
+-- Interface Manager Setup
+InterfaceManager:SetLibrary(Fluent)
+InterfaceManager:SetFolder("GameInterfaces")
+InterfaceManager:BuildInterfaceSection(Tabs.Misc)
+
+Window:SelectTab(1)
+
+Fluent:Notify({
+    Title = "Cyber",
+    Content = "The script has been loaded.",
+    Duration = 8
+})
+
+SaveManager:LoadAutoloadConfig()
