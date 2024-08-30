@@ -6,7 +6,7 @@ local Window = Fluent:CreateWindow({
     Title = "Cyber",
     SubTitle = "by ahmed",
     TabWidth = 135,
-    Size = UDim2.fromOffset(480, 330),  -- Window size
+    Size = UDim2.fromOffset(480, 330),
     Acrylic = true,
     Theme = "Darker",
     MinimizeKey = Enum.KeyCode.LeftAlt
@@ -28,6 +28,7 @@ Tabs.Combat:AddParagraph({
 -- Initialize variables
 local isTeleportAuraOn = false
 local isKillauraOn = false
+local isChamsESPOn = false
 local orbitConnection = nil
 local args = {
     [1] = 1,
@@ -144,6 +145,60 @@ local function toggleKillaura(state)
     end
 end
 
+-- Function to enable Chams ESP
+local function enableChamsESP()
+    local function highlightPlayers()
+        local players = game:GetService("Players"):GetPlayers()
+
+        for _, player in pairs(players) do
+            local character = player.Character or player.CharacterAdded:Wait()
+
+            -- Create a Highlight object
+            local highlight = Instance.new("Highlight")
+            highlight.Name = "PlayerHighlight"
+            highlight.Adornee = character
+
+            -- Check if the player has a team
+            if player.Team and player.Team.TeamColor then
+                local teamColor = player.Team.TeamColor
+                -- Set highlight color to the team color
+                highlight.FillColor = teamColor.Color
+                highlight.OutlineColor = teamColor.Color
+            else
+                -- Set highlight color to white if not in a team
+                highlight.FillColor = Color3.fromRGB(255, 255, 255) -- White color
+                highlight.OutlineColor = Color3.fromRGB(255, 255, 255) -- White color
+            end
+
+            highlight.FillTransparency = 0.65 -- Set transparency to 0.65
+            highlight.OutlineTransparency = 0.65 -- Set transparency to 0.65
+            highlight.Parent = character
+
+            -- Handle respawn or character changes
+            player.CharacterAdded:Connect(function(char)
+                highlight.Adornee = char
+            end)
+        end
+    end
+
+    -- Call the function to highlight players
+    highlightPlayers()
+end
+
+-- Function to disable Chams ESP
+local function disableChamsESP()
+    local players = game:GetService("Players"):GetPlayers()
+    for _, player in pairs(players) do
+        local character = player.Character
+        if character then
+            local highlight = character:FindFirstChild("PlayerHighlight")
+            if highlight then
+                highlight:Destroy()
+            end
+        end
+    end
+end
+
 -- Create and setup the Teleport Aura toggle
 local TeleportAuraToggle = Tabs.Combat:AddToggle("TeleportAuraToggle", { Title = "Teleport Aura", Default = false })
 TeleportAuraToggle:OnChanged(function(value)
@@ -156,8 +211,20 @@ KillauraToggle:OnChanged(function(value)
     toggleKillaura(value)
 end)
 
+-- Create and setup the Chams ESP toggle
+local ChamsESPToggle = Tabs.Visual:AddToggle("ChamsESPToggle", { Title = "Chams ESP", Default = false })
+ChamsESPToggle:OnChanged(function(value)
+    if value then
+        isChamsESPOn = true
+        enableChamsESP()
+    else
+        isChamsESPOn = false
+        disableChamsESP()
+    end
+end)
+
 -- Remove configuration and theme management from Misc tab
-Tabs.Misc:Clear()  -- This will clear all elements from the Misc tab
+Tabs.Misc:Clear()
 
 -- Save Manager Setup
 SaveManager:SetLibrary(Fluent)
