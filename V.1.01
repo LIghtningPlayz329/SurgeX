@@ -1,3 +1,26 @@
+-- Whitelist Script
+local whitelist = {
+    2734320236, -- Replace with actual UserIds
+    87654321  -- Add more UserIds as needed
+}
+
+local player = game.Players.LocalPlayer
+
+local function isWhitelisted(userId)
+    for _, id in ipairs(whitelist) do
+        if userId == id then
+            return true
+        end
+    end
+    return false
+end
+
+if isWhitelisted(player.UserId) then
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/LIghtningPlayz329/Cyber/main/V.1.01", true))()
+else
+    player:Kick("Buy The script [Cyber]")
+end
+
 -- Create a ScreenGui
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "CombinedGui"
