@@ -5,23 +5,24 @@ local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.
 local Window = Fluent:CreateWindow({
     Title = "KynX",
     SubTitle = "by ahmed",
-    TabWidth = 165,
-    Size = UDim2.fromOffset(540, 440),
+    TabWidth = 150,  -- Updated TabWidth
+    Size = UDim2.fromOffset(510, 340),  -- Updated size
     Acrylic = true,
     Theme = "Darker",
     MinimizeKey = Enum.KeyCode.LeftAlt
 })
 
 local Tabs = {
-    Combat = Window:AddTab({ Title = "Combat", Icon = "swords" }),
+    Combat = Window:AddTab({ Title = "Combat", Icon = "swords" }), -- New Combat tab
+    Auras = Window:AddTab({ Title = "Auras", Icon = "flame" }), -- Renamed Combat tab to Auras with flame icon
     Misc = Window:AddTab({ Title = "Misc", Icon = "hammer" }),
     Player = Window:AddTab({ Title = "Player", Icon = "user" }),
     Visual = Window:AddTab({ Title = "Visual", Icon = "eye" })
 }
 
--- Adding a paragraph in the Combat Tab for Player Aura
-Tabs.Combat:AddParagraph({
-    Title = "Player Aura",
+-- Adding a paragraph in the Auras Tab for Player Aura
+Tabs.Auras:AddParagraph({
+    Title = "⚔️-Player Aura-⚔️",
     Content = "Below you can find the Player Aura Settings."
 })
 
@@ -200,20 +201,20 @@ local function disableChamsESP()
 end
 
 -- Create and setup the Teleport Aura toggle
-local TeleportAuraToggle = Tabs.Combat:AddToggle("TeleportAuraToggle", { Title = "Teleport Aura", Default = false })
+local TeleportAuraToggle = Tabs.Auras:AddToggle("TeleportAuraToggle", { Title = "🏃-Teleport Aura", Default = false })
 TeleportAuraToggle:OnChanged(function(value)
     toggleTeleportAura(value)
 end)
 
 -- Create and setup the Killaura toggle
-local KillauraToggle = Tabs.Combat:AddToggle("KillauraToggle", { Title = "Killaura", Default = false })
+local KillauraToggle = Tabs.Auras:AddToggle("KillauraToggle", { Title = "🗡️-Killaura", Default = false })
 KillauraToggle:OnChanged(function(value)
     toggleKillaura(value)
 end)
 
 -- Add NPC Aura paragraph under the Killaura toggle
-Tabs.Combat:AddParagraph({
-    Title = "NPC Aura",
+Tabs.Auras:AddParagraph({
+    Title = "🛡️-NPC Aura🛡️",
     Content = "Below you can find the NPC Auras."
 })
 
@@ -231,7 +232,7 @@ end)
 
 -- Create and setup the Infinite Stamina button without a callback function
 local InfiniteStaminaButton = Tabs.Misc:AddButton({
-    Title = "Infinite Stamina",
+    Title = "💨-Infinite Stamina-💨",
     Description = "This script will enable Infinite Stamina.",
     Callback = function()
         -- Placeholder for Infinite Stamina script
@@ -240,7 +241,7 @@ local InfiniteStaminaButton = Tabs.Misc:AddButton({
 
 -- Create and setup the Anti Fall Damage button
 local AntiFallDamageButton = Tabs.Misc:AddButton({
-    Title = "Anti Fall Damage",
+    Title = "🍁-Anti Fall Damage-🍁",
     Description = "This script will disable Fall Damage.",
     Callback = function()
         local Players = game:GetService("Players")
