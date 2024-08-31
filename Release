@@ -201,13 +201,13 @@ local function disableChamsESP()
 end
 
 -- Create and setup the Teleport Aura toggle
-local TeleportAuraToggle = Tabs.Auras:AddToggle("TeleportAuraToggle", { Title = "🏃-Teleport Aura", Default = false })
+local TeleportAuraToggle = Tabs.Auras:AddToggle("TeleportAuraToggle", { Title = "Teleport Aura", Default = false })
 TeleportAuraToggle:OnChanged(function(value)
     toggleTeleportAura(value)
 end)
 
 -- Create and setup the Killaura toggle
-local KillauraToggle = Tabs.Auras:AddToggle("KillauraToggle", { Title = "🗡️-Killaura", Default = false })
+local KillauraToggle = Tabs.Auras:AddToggle("KillauraToggle", { Title = "Killaura", Default = false })
 KillauraToggle:OnChanged(function(value)
     toggleKillaura(value)
 end)
@@ -217,6 +217,20 @@ Tabs.Auras:AddParagraph({
     Title = "🛡️-NPC Aura🛡️",
     Content = "Below you can find the NPC Auras."
 })
+
+-- Create and setup the Animal Aura toggle
+local AnimalAuraToggle = Tabs.Auras:AddToggle("AnimalAuraToggle", { Title = "Animal Aura", Default = false })
+AnimalAuraToggle:OnChanged(function(value)
+    -- Placeholder for Animal Aura functionality
+    print("Animal Aura is now " .. (value and "ON" or "OFF"))
+end)
+
+-- Create and setup the Titan Aura toggle
+local TitanAuraToggle = Tabs.Auras:AddToggle("TitanAuraToggle", { Title = "Titan Aura", Default = false })
+TitanAuraToggle:OnChanged(function(value)
+    -- Placeholder for Titan Aura functionality
+    print("Titan Aura is now " .. (value and "ON" or "OFF"))
+end)
 
 -- Create and setup the Chams ESP toggle
 local ChamsESPToggle = Tabs.Visual:AddToggle("ChamsESPToggle", { Title = "Chams ESP", Default = false })
