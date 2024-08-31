@@ -3,10 +3,10 @@ local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/d
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
 local Window = Fluent:CreateWindow({
-    Title = "Cyber",
+    Title = "KynX",
     SubTitle = "by ahmed",
     TabWidth = 135,
-    Size = UDim2.fromOffset(480, 330),
+    Size = UDim2.fromOffset(600, 480),
     Acrylic = true,
     Theme = "Darker",
     MinimizeKey = Enum.KeyCode.LeftAlt
@@ -23,12 +23,6 @@ local Tabs = {
 Tabs.Combat:AddParagraph({
     Title = "Player Aura",
     Content = "Below you can find the Player Aura Settings."
-})
-
--- Adding a paragraph in the Combat Tab for NPC Aura
-Tabs.Combat:AddParagraph({
-    Title = "NPC Aura",
-    Content = "Below you can find the NPC Auras."
 })
 
 -- Initialize variables
@@ -217,6 +211,12 @@ KillauraToggle:OnChanged(function(value)
     toggleKillaura(value)
 end)
 
+-- Add NPC Aura paragraph under the Killaura toggle
+Tabs.Combat:AddParagraph({
+    Title = "NPC Aura",
+    Content = "Below you can find the NPC Auras."
+})
+
 -- Create and setup the Chams ESP toggle
 local ChamsESPToggle = Tabs.Visual:AddToggle("ChamsESPToggle", { Title = "Chams ESP", Default = false })
 ChamsESPToggle:OnChanged(function(value)
@@ -228,3 +228,41 @@ ChamsESPToggle:OnChanged(function(value)
         disableChamsESP()
     end
 end)
+
+-- Create and setup the Infinite Stamina button without a callback function
+local InfiniteStaminaButton = Tabs.Misc:AddButton({
+    Title = "Infinite Stamina",
+    Description = "This script will enable Infinite Stamina.",
+    Callback = function()
+        -- Placeholder for Infinite Stamina script
+    end
+})
+
+-- Create and setup the Anti Fall Damage button
+local AntiFallDamageButton = Tabs.Misc:AddButton({
+    Title = "Anti Fall Damage",
+    Description = "This script will disable Fall Damage.",
+    Callback = function()
+        local Players = game:GetService("Players")
+        local LocalPlayer = Players.LocalPlayer
+
+        -- Function to disable fallDamage LocalScript
+        local function disableFallDamage()
+            -- Ensure LocalPlayer and its character are available
+            if LocalPlayer and LocalPlayer.Character then
+                -- Check each descendant of the LocalPlayer's character
+                for _, desc in ipairs(LocalPlayer.Character:GetDescendants()) do
+                    -- Find the LocalScript named 'fallDamage'
+                    if desc:IsA("LocalScript") and desc.Name == "fallDamage" then
+                        desc.Disabled = true
+                        print("fallDamage LocalScript has been disabled.")
+                        return -- Exit after disabling the script
+                    end
+                end
+            end
+        end
+
+        -- Call the function to disable fall damage
+        disableFallDamage()
+    end
+})
