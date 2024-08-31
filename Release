@@ -19,10 +19,16 @@ local Tabs = {
     Visual = Window:AddTab({ Title = "Visual", Icon = "eye" })
 }
 
--- Adding a paragraph in the Combat Tab
+-- Adding a paragraph in the Combat Tab for Player Aura
 Tabs.Combat:AddParagraph({
     Title = "Player Aura",
     Content = "Below you can find the Player Aura Settings."
+})
+
+-- Adding a paragraph in the Combat Tab for NPC Aura
+Tabs.Combat:AddParagraph({
+    Title = "NPC Aura",
+    Content = "Below you can find the NPC Auras."
 })
 
 -- Initialize variables
@@ -72,8 +78,8 @@ local function toggleTeleportAura(state)
                 local nearestCharacter = nearestPlayer.Character
                 local nearestHumanoidRootPart = nearestCharacter.HumanoidRootPart
                 local orbitPosition = nearestHumanoidRootPart.Position + Vector3.new(0, 10, 0) -- increased height by a lot
-                local orbitRadius = 5 -- adjust the radius here
-                local orbitSpeed = 24 -- increased spin speed
+                local orbitRadius = 5.3 -- adjusted radius here
+                local orbitSpeed = 21 -- adjusted spin speed
 
                 local angle = tick() * orbitSpeed
                 local x = math.cos(angle) * orbitRadius
@@ -222,27 +228,3 @@ ChamsESPToggle:OnChanged(function(value)
         disableChamsESP()
     end
 end)
-
--- Remove configuration and theme management from Misc tab
-Tabs.Misc:Clear()
-
--- Save Manager Setup
-SaveManager:SetLibrary(Fluent)
-SaveManager:IgnoreThemeSettings()
-SaveManager:SetFolder("GameConfigs")
-SaveManager:BuildConfigSection(Tabs.Misc)
-
--- Interface Manager Setup
-InterfaceManager:SetLibrary(Fluent)
-InterfaceManager:SetFolder("GameInterfaces")
-InterfaceManager:BuildInterfaceSection(Tabs.Misc)
-
-Window:SelectTab(1)
-
-Fluent:Notify({
-    Title = "Cyber",
-    Content = "The script has been loaded.",
-    Duration = 8
-})
-
-SaveManager:LoadAutoloadConfig()
