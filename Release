@@ -6,15 +6,15 @@ local Window = Fluent:CreateWindow({
     Title = "KynX",
     SubTitle = "by ahmed",
     TabWidth = 150,  -- Updated TabWidth
-    Size = UDim2.fromOffset(510, 340),  -- Updated size
+    Size = UDim2.fromOffset(540, 370),  -- Updated size
     Acrylic = true,
     Theme = "Darker",
     MinimizeKey = Enum.KeyCode.LeftAlt
 })
 
 local Tabs = {
-    Combat = Window:AddTab({ Title = "Combat", Icon = "swords" }), -- New Combat tab
-    Auras = Window:AddTab({ Title = "Auras", Icon = "flame" }), -- Renamed Combat tab to Auras with flame icon
+    Combat = Window:AddTab({ Title = "Combat", Icon = "swords" }),
+    Auras = Window:AddTab({ Title = "Auras", Icon = "flame" }),
     Misc = Window:AddTab({ Title = "Misc", Icon = "hammer" }),
     Player = Window:AddTab({ Title = "Player", Icon = "user" }),
     Visual = Window:AddTab({ Title = "Visual", Icon = "eye" })
@@ -22,18 +22,19 @@ local Tabs = {
 
 -- Adding a paragraph in the Auras Tab for Player Aura
 Tabs.Auras:AddParagraph({
-    Title = "⚔️-Player Aura-⚔️",
-    Content = "Below you can find the Player Aura Settings."
+    Title = "⚔️-Player Aura-⚔️"
 })
+
 
 -- Initialize variables
 local isTeleportAuraOn = false
 local isKillauraOn = false
 local isChamsESPOn = false
+local isTPWalkEnabled = false
 local orbitConnection = nil
 local args = {
     [1] = 1,
-    [2] = nil -- Initialize with nil, will be updated later
+    [2] = nil
 }
 
 -- Function to toggle Teleport Aura
@@ -41,10 +42,8 @@ local function toggleTeleportAura(state)
     if state then
         if isTeleportAuraOn then return end
         isTeleportAuraOn = true
-        -- Execute the desired script when Teleport Aura is turned on
-        print("Teleport Aura is now ON")  -- Placeholder for the actual script
+        print("Teleport Aura is now ON")
 
-        -- Add the orbit functionality
         local Players = game:GetService("Players")
         local localPlayer = Players.LocalPlayer
         local character = localPlayer.Character
@@ -52,7 +51,6 @@ local function toggleTeleportAura(state)
         local RunService = game:GetService("RunService")
 
         local function updateOrbit()
-            -- Find the nearest living player within range
             local nearestPlayer = nil
             local nearestDistance = math.huge
             for _, player in pairs(Players:GetPlayers()) do
@@ -68,13 +66,12 @@ local function toggleTeleportAura(state)
                 end
             end
 
-            -- Orbit the nearest living player within range
             if nearestPlayer then
                 local nearestCharacter = nearestPlayer.Character
                 local nearestHumanoidRootPart = nearestCharacter.HumanoidRootPart
-                local orbitPosition = nearestHumanoidRootPart.Position + Vector3.new(0, 10, 0) -- increased height by a lot
-                local orbitRadius = 5.3 -- adjusted radius here
-                local orbitSpeed = 21 -- adjusted spin speed
+                local orbitPosition = nearestHumanoidRootPart.Position + Vector3.new(0, 10, 0)
+                local orbitRadius = 5.3
+                local orbitSpeed = 21
 
                 local angle = tick() * orbitSpeed
                 local x = math.cos(angle) * orbitRadius
@@ -83,13 +80,10 @@ local function toggleTeleportAura(state)
             end
         end
 
-        -- Connect the updateOrbit function to Heartbeat
         orbitConnection = RunService.Heartbeat:Connect(updateOrbit)
 
-        -- Start the additional script functionality
         coroutine.wrap(function()
             while isTeleportAuraOn do
-                -- Find the nearest player within range
                 local nearestPlayer = nil
                 local nearestDistance = math.huge
                 for _, player in pairs(Players:GetPlayers()) do
@@ -105,24 +99,20 @@ local function toggleTeleportAura(state)
                     end
                 end
 
-                -- Update the args table with the nearest player if within range
                 if nearestPlayer then
                     args[2] = nearestPlayer
                 else
                     args[2] = nil
                 end
 
-                -- Fire the remote event with the updated args
                 game:GetService("ReplicatedStorage").remoteInterface.interactions.meleePlayer:FireServer(unpack(args))
 
-                -- Wait for 0.1 seconds before checking again
                 wait(0.1)
             end
         end)()
     else
         if not isTeleportAuraOn then return end
         isTeleportAuraOn = false
-        -- Remove the orbit update function when turning off
         if orbitConnection then
             orbitConnection:Disconnect()
             orbitConnection = nil
@@ -135,14 +125,10 @@ local function toggleKillaura(state)
     if state then
         if isKillauraOn then return end
         isKillauraOn = true
-        -- Execute the desired script when Killaura is turned on
-        print("Killaura is now ON")  -- Placeholder for the actual script
-
-        -- Implement Killaura functionality here, if needed
+        print("Killaura is now ON")
     else
         if not isKillauraOn then return end
         isKillauraOn = false
-        -- Disable Killaura functionality here, if needed
     end
 end
 
@@ -154,35 +140,29 @@ local function enableChamsESP()
         for _, player in pairs(players) do
             local character = player.Character or player.CharacterAdded:Wait()
 
-            -- Create a Highlight object
             local highlight = Instance.new("Highlight")
             highlight.Name = "PlayerHighlight"
             highlight.Adornee = character
 
-            -- Check if the player has a team
             if player.Team and player.Team.TeamColor then
                 local teamColor = player.Team.TeamColor
-                -- Set highlight color to the team color
                 highlight.FillColor = teamColor.Color
                 highlight.OutlineColor = teamColor.Color
             else
-                -- Set highlight color to white if not in a team
-                highlight.FillColor = Color3.fromRGB(255, 255, 255) -- White color
-                highlight.OutlineColor = Color3.fromRGB(255, 255, 255) -- White color
+                highlight.FillColor = Color3.fromRGB(255, 255, 255)
+                highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
             end
 
-            highlight.FillTransparency = 0.65 -- Set transparency to 0.65
-            highlight.OutlineTransparency = 0.65 -- Set transparency to 0.65
+            highlight.FillTransparency = 0.65
+            highlight.OutlineTransparency = 0.65
             highlight.Parent = character
 
-            -- Handle respawn or character changes
             player.CharacterAdded:Connect(function(char)
                 highlight.Adornee = char
             end)
         end
     end
 
-    -- Call the function to highlight players
     highlightPlayers()
 end
 
@@ -200,6 +180,22 @@ local function disableChamsESP()
     end
 end
 
+-- Function to start teleport walking
+local function startTPWalking()
+    local Players = game:GetService("Players")
+    local LocalPlayer = Players.LocalPlayer
+    local chr = LocalPlayer.Character
+    local hum = chr and chr:FindFirstChildWhichIsA("Humanoid")
+    local hb = game:GetService("RunService").Heartbeat
+
+    while isTPWalkEnabled and chr and hum and hum.Parent do
+        local delta = hb:Wait()
+        if hum.MoveDirection.Magnitude > 0 then
+            chr:TranslateBy(hum.MoveDirection * delta * 30)  -- Increased speed
+        end
+    end
+end
+
 -- Create and setup the Teleport Aura toggle
 local TeleportAuraToggle = Tabs.Auras:AddToggle("TeleportAuraToggle", { Title = "Teleport Aura", Default = false })
 TeleportAuraToggle:OnChanged(function(value)
@@ -212,23 +208,30 @@ KillauraToggle:OnChanged(function(value)
     toggleKillaura(value)
 end)
 
--- Add NPC Aura paragraph under the Killaura toggle
+-- Adding a paragraph in the Auras Tab for NPC Aura
 Tabs.Auras:AddParagraph({
-    Title = "🛡️-NPC Aura🛡️",
-    Content = "Below you can find the NPC Auras."
+    Title = "🛡️-NPC Aura🛡️"
 })
+
+
+-- Create and setup the Speed toggle
+local SpeedToggle = Tabs.Player:AddToggle("SpeedToggle", { Title = "Speed", Default = false })
+SpeedToggle:OnChanged(function(value)
+    isTPWalkEnabled = value
+    if isTPWalkEnabled then
+        startTPWalking()
+    end
+end)
 
 -- Create and setup the Animal Aura toggle
 local AnimalAuraToggle = Tabs.Auras:AddToggle("AnimalAuraToggle", { Title = "Animal Aura", Default = false })
 AnimalAuraToggle:OnChanged(function(value)
-    -- Placeholder for Animal Aura functionality
     print("Animal Aura is now " .. (value and "ON" or "OFF"))
 end)
 
 -- Create and setup the Titan Aura toggle
 local TitanAuraToggle = Tabs.Auras:AddToggle("TitanAuraToggle", { Title = "Titan Aura", Default = false })
 TitanAuraToggle:OnChanged(function(value)
-    -- Placeholder for Titan Aura functionality
     print("Titan Aura is now " .. (value and "ON" or "OFF"))
 end)
 
@@ -236,15 +239,13 @@ end)
 local ChamsESPToggle = Tabs.Visual:AddToggle("ChamsESPToggle", { Title = "Chams ESP", Default = false })
 ChamsESPToggle:OnChanged(function(value)
     if value then
-        isChamsESPOn = true
         enableChamsESP()
     else
-        isChamsESPOn = false
         disableChamsESP()
     end
 end)
 
--- Create and setup the Infinite Stamina button without a callback function
+-- Create and setup the Infinite Stamina button
 local InfiniteStaminaButton = Tabs.Misc:AddButton({
     Title = "💨-Infinite Stamina-💨",
     Description = "This script will enable Infinite Stamina.",
@@ -261,23 +262,18 @@ local AntiFallDamageButton = Tabs.Misc:AddButton({
         local Players = game:GetService("Players")
         local LocalPlayer = Players.LocalPlayer
 
-        -- Function to disable fallDamage LocalScript
         local function disableFallDamage()
-            -- Ensure LocalPlayer and its character are available
             if LocalPlayer and LocalPlayer.Character then
-                -- Check each descendant of the LocalPlayer's character
                 for _, desc in ipairs(LocalPlayer.Character:GetDescendants()) do
-                    -- Find the LocalScript named 'fallDamage'
                     if desc:IsA("LocalScript") and desc.Name == "fallDamage" then
                         desc.Disabled = true
                         print("fallDamage LocalScript has been disabled.")
-                        return -- Exit after disabling the script
+                        return
                     end
                 end
             end
         end
 
-        -- Call the function to disable fall damage
         disableFallDamage()
     end
 })
