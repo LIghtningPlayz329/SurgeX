@@ -5,8 +5,8 @@ local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.
 local Window = Fluent:CreateWindow({
     Title = "KynX",
     SubTitle = "by ahmed",
-    TabWidth = 150,  -- Updated TabWidth
-    Size = UDim2.fromOffset(540, 370),  -- Updated size
+    TabWidth = 150,
+    Size = UDim2.fromOffset(540, 370),
     Acrylic = true,
     Theme = "Darker",
     MinimizeKey = Enum.KeyCode.LeftAlt
@@ -25,16 +25,16 @@ Tabs.Auras:AddParagraph({
     Title = "⚔️-Player Aura-⚔️"
 })
 
-
 -- Initialize variables
 local isTeleportAuraOn = false
 local isKillauraOn = false
 local isChamsESPOn = false
 local isTPWalkEnabled = false
 local orbitConnection = nil
+local killauraConnection = nil
 local args = {
     [1] = 1,
-    [2] = nil
+    [2] = workspace.AI_Server.Deer
 }
 
 -- Function to toggle Teleport Aura
@@ -126,9 +126,50 @@ local function toggleKillaura(state)
         if isKillauraOn then return end
         isKillauraOn = true
         print("Killaura is now ON")
+
+        killauraConnection = coroutine.create(function()
+            local Players = game:GetService("Players")
+            local localPlayer = Players.LocalPlayer
+            local args = {
+                [1] = 1,
+                [2] = nil
+            }
+
+            while isKillauraOn do
+                local nearestPlayer = nil
+                local nearestDistance = math.huge
+                for _, player in pairs(Players:GetPlayers()) do
+                    if player ~= localPlayer then
+                        local character = player.Character
+                        if character then
+                            local distance = (character.HumanoidRootPart.Position - localPlayer.Character.HumanoidRootPart.Position).magnitude
+                            if distance < nearestDistance then
+                                nearestDistance = distance
+                                nearestPlayer = player
+                            end
+                        end
+                    end
+                end
+
+                if nearestPlayer then
+                    args[2] = nearestPlayer
+                else
+                    args[2] = nil
+                end
+
+                game:GetService("ReplicatedStorage").remoteInterface.interactions.meleePlayer:FireServer(unpack(args))
+
+                wait(0.1)
+            end
+        end)
+        coroutine.resume(killauraConnection)
     else
         if not isKillauraOn then return end
         isKillauraOn = false
+        if killauraConnection then
+            coroutine.close(killauraConnection)
+            killauraConnection = nil
+        end
     end
 end
 
@@ -191,9 +232,29 @@ local function startTPWalking()
     while isTPWalkEnabled and chr and hum and hum.Parent do
         local delta = hb:Wait()
         if hum.MoveDirection.Magnitude > 0 then
-            chr:TranslateBy(hum.MoveDirection * delta * 30)  -- Increased speed
+            chr:TranslateBy(hum.MoveDirection * delta * 24)  -- Updated speed to 24
         end
     end
+end
+
+-- Function to enable Infinite Stamina
+local function enableInfiniteStamina()
+    local Players = game:GetService("Players")
+    local LocalPlayer = Players.LocalPlayer
+    local lplr = LocalPlayer
+    local oldStamina = lplr:GetAttribute("stamina")
+    
+    -- Set stamina to a constant value
+    lplr:SetAttribute("stamina", 1)
+    
+    -- Listen for changes to the stamina attribute and reset it if needed
+    local infStaminaConnection = lplr:GetAttributeChangedSignal("stamina"):Connect(function()
+        local newStamina = lplr:GetAttribute("stamina")
+        if newStamina ~= 1 then
+            oldStamina = newStamina
+            lplr:SetAttribute("stamina", 1)
+        end
+    end)
 end
 
 -- Create and setup the Teleport Aura toggle
@@ -213,7 +274,6 @@ Tabs.Auras:AddParagraph({
     Title = "🛡️-NPC Aura🛡️"
 })
 
-
 -- Create and setup the Speed toggle
 local SpeedToggle = Tabs.Player:AddToggle("SpeedToggle", { Title = "Speed", Default = false })
 SpeedToggle:OnChanged(function(value)
@@ -221,18 +281,6 @@ SpeedToggle:OnChanged(function(value)
     if isTPWalkEnabled then
         startTPWalking()
     end
-end)
-
--- Create and setup the Animal Aura toggle
-local AnimalAuraToggle = Tabs.Auras:AddToggle("AnimalAuraToggle", { Title = "Animal Aura", Default = false })
-AnimalAuraToggle:OnChanged(function(value)
-    print("Animal Aura is now " .. (value and "ON" or "OFF"))
-end)
-
--- Create and setup the Titan Aura toggle
-local TitanAuraToggle = Tabs.Auras:AddToggle("TitanAuraToggle", { Title = "Titan Aura", Default = false })
-TitanAuraToggle:OnChanged(function(value)
-    print("Titan Aura is now " .. (value and "ON" or "OFF"))
 end)
 
 -- Create and setup the Chams ESP toggle
@@ -250,7 +298,7 @@ local InfiniteStaminaButton = Tabs.Misc:AddButton({
     Title = "💨-Infinite Stamina-💨",
     Description = "This script will enable Infinite Stamina.",
     Callback = function()
-        -- Placeholder for Infinite Stamina script
+        enableInfiniteStamina()
     end
 })
 
