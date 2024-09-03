@@ -5,8 +5,8 @@ local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.
 local Window = Fluent:CreateWindow({
     Title = "KynX",
     SubTitle = "by ahmed",
-    TabWidth = 150,  -- Updated TabWidth
-    Size = UDim2.fromOffset(540, 370),  -- Updated size
+    TabWidth = 150,
+    Size = UDim2.fromOffset(540, 370),
     Acrylic = true,
     Theme = "Darker",
     MinimizeKey = Enum.KeyCode.LeftAlt
@@ -25,40 +25,70 @@ Tabs.Auras:AddParagraph({
     Title = "⚔️-Player Aura-⚔️"
 })
 
-
 -- Initialize variables
 local isTeleportAuraOn = false
 local isKillauraOn = false
 local isChamsESPOn = false
 local isTPWalkEnabled = false
+local isTitanAuraOn = false
 local orbitConnection = nil
 local args = {
     [1] = 1,
     [2] = nil
 }
 
--- Function to toggle Teleport Aura
-local function toggleTeleportAura(state)
-    if state then
-        if isTeleportAuraOn then return end
-        isTeleportAuraOn = true
-        print("Teleport Aura is now ON")
+-- Function to start the Teleport Aura
+local function startTeleportAura()
+    print("Teleport Aura is now ON")
 
-        local Players = game:GetService("Players")
-        local localPlayer = Players.LocalPlayer
-        local character = localPlayer.Character
-        local humanoidRootPart = character.HumanoidRootPart
-        local RunService = game:GetService("RunService")
+    local Players = game:GetService("Players")
+    local localPlayer = Players.LocalPlayer
+    local character = localPlayer.Character
+    local humanoidRootPart = character.HumanoidRootPart
+    local RunService = game:GetService("RunService")
 
-        local function updateOrbit()
+    local function updateOrbit()
+        local nearestPlayer = nil
+        local nearestDistance = math.huge
+        for _, player in pairs(Players:GetPlayers()) do
+            if player ~= localPlayer then
+                local character = player.Character
+                if character and character:FindFirstChild("Humanoid") and character.Humanoid.Health > 0 then
+                    local distance = (character.HumanoidRootPart.Position - humanoidRootPart.Position).magnitude
+                    if distance <= 19 and distance < nearestDistance then
+                        nearestDistance = distance
+                        nearestPlayer = player
+                    end
+                end
+            end
+        end
+
+        if nearestPlayer then
+            local nearestCharacter = nearestPlayer.Character
+            local nearestHumanoidRootPart = nearestCharacter.HumanoidRootPart
+            local orbitPosition = nearestHumanoidRootPart.Position + Vector3.new(0, 10, 0)
+            local orbitRadius = 5.3
+            local orbitSpeed = 21
+
+            local angle = tick() * orbitSpeed
+            local x = math.cos(angle) * orbitRadius
+            local z = math.sin(angle) * orbitRadius
+            humanoidRootPart.CFrame = CFrame.new(orbitPosition + Vector3.new(x, 0, z))
+        end
+    end
+
+    orbitConnection = RunService.Heartbeat:Connect(updateOrbit)
+
+    coroutine.wrap(function()
+        while isTeleportAuraOn do
             local nearestPlayer = nil
             local nearestDistance = math.huge
             for _, player in pairs(Players:GetPlayers()) do
                 if player ~= localPlayer then
                     local character = player.Character
-                    if character and character:FindFirstChild("Humanoid") and character.Humanoid.Health > 0 then
-                        local distance = (character.HumanoidRootPart.Position - humanoidRootPart.Position).magnitude
-                        if distance <= 16 and distance < nearestDistance then
+                    if character then
+                        local distance = (character.HumanoidRootPart.Position - localPlayer.Character.HumanoidRootPart.Position).magnitude
+                        if distance <= 19 and distance < nearestDistance then
                             nearestDistance = distance
                             nearestPlayer = player
                         end
@@ -67,55 +97,93 @@ local function toggleTeleportAura(state)
             end
 
             if nearestPlayer then
-                local nearestCharacter = nearestPlayer.Character
-                local nearestHumanoidRootPart = nearestCharacter.HumanoidRootPart
-                local orbitPosition = nearestHumanoidRootPart.Position + Vector3.new(0, 10, 0)
-                local orbitRadius = 5.3
-                local orbitSpeed = 21
+                args[2] = nearestPlayer
+            else
+                args[2] = nil
+            end
 
-                local angle = tick() * orbitSpeed
-                local x = math.cos(angle) * orbitRadius
-                local z = math.sin(angle) * orbitRadius
-                humanoidRootPart.CFrame = CFrame.new(orbitPosition + Vector3.new(x, 0, z))
+            game:GetService("ReplicatedStorage").remoteInterface.interactions.meleePlayer:FireServer(unpack(args))
+
+            wait(0.1)
+        end
+    end)()
+end
+
+-- Function to start Titan Aura
+local function startTitanAura()
+    print("Titan Aura is now ON")
+
+    local Players = game:GetService("Players")
+    local RunService = game:GetService("RunService")
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    local localPlayer = Players.LocalPlayer
+    local humanoidRootPart = localPlayer.Character and localPlayer.Character:WaitForChild("HumanoidRootPart")
+
+    local orbitConnection = nil
+
+    local args = {
+        [1] = 1,
+        [2] = nil
+    }
+
+    local function isInRange(playerPosition, targetPosition, range)
+        return (playerPosition - targetPosition).magnitude <= range
+    end
+
+    local function updateOrbit()
+        local titan = workspace.AI_Server:FindFirstChild("The Titan")
+        if titan then
+            local titanPrimaryPart = titan.PrimaryPart
+            if titanPrimaryPart and isInRange(humanoidRootPart.Position, titanPrimaryPart.Position, 23) then
+                local orbitRadius = 5    -- Smaller orbit radius for a tighter orbit
+                local heightOffset = 10  -- Height above the Titan
+                local orbitSpeed = 10    -- Faster orbit speed
+
+                local time = tick() * orbitSpeed
+                local x = math.cos(time) * orbitRadius
+                local z = math.sin(time) * orbitRadius
+                local orbitPosition = titanPrimaryPart.Position + Vector3.new(x, heightOffset, z)
+
+                local lookAtPosition = titanPrimaryPart.Position + Vector3.new(0, heightOffset, 0)
+                humanoidRootPart.CFrame = CFrame.new(orbitPosition, lookAtPosition)
+
+                if not isInRange(humanoidRootPart.Position, orbitPosition, 2) then
+                    humanoidRootPart.CFrame = CFrame.new(orbitPosition, lookAtPosition)
+                end
+                
+                args[2] = titan
+                ReplicatedStorage.remoteInterface.interactions.meleeAI:FireServer(unpack(args))
             end
         end
+    end
 
-        orbitConnection = RunService.Heartbeat:Connect(updateOrbit)
+    orbitConnection = RunService.Heartbeat:Connect(updateOrbit)
 
-        coroutine.wrap(function()
-            while isTeleportAuraOn do
-                local nearestPlayer = nil
-                local nearestDistance = math.huge
-                for _, player in pairs(Players:GetPlayers()) do
-                    if player ~= localPlayer then
-                        local character = player.Character
-                        if character then
-                            local distance = (character.HumanoidRootPart.Position - localPlayer.Character.HumanoidRootPart.Position).magnitude
-                            if distance <= 16 and distance < nearestDistance then
-                                nearestDistance = distance
-                                nearestPlayer = player
-                            end
-                        end
-                    end
-                end
+    return orbitConnection
+end
 
-                if nearestPlayer then
-                    args[2] = nearestPlayer
-                else
-                    args[2] = nil
-                end
+-- Function to stop Titan Aura
+local function stopTitanAura()
+    if orbitConnection then
+        orbitConnection:Disconnect()
+        orbitConnection = nil
+    end
+end
 
-                game:GetService("ReplicatedStorage").remoteInterface.interactions.meleePlayer:FireServer(unpack(args))
-
-                wait(0.1)
-            end
-        end)()
+-- Function to toggle Teleport Aura
+local function toggleTeleportAura(state)
+    if state then
+        if not isTeleportAuraOn then
+            isTeleportAuraOn = true
+            startTeleportAura()
+        end
     else
-        if not isTeleportAuraOn then return end
-        isTeleportAuraOn = false
-        if orbitConnection then
-            orbitConnection:Disconnect()
-            orbitConnection = nil
+        if isTeleportAuraOn then
+            isTeleportAuraOn = false
+            if orbitConnection then
+                orbitConnection:Disconnect()
+                orbitConnection = nil
+            end
         end
     end
 end
@@ -123,12 +191,14 @@ end
 -- Function to toggle Killaura
 local function toggleKillaura(state)
     if state then
-        if isKillauraOn then return end
-        isKillauraOn = true
-        print("Killaura is now ON")
+        if not isKillauraOn then
+            isKillauraOn = true
+            print("Killaura is now ON")
+        end
     else
-        if not isKillauraOn then return end
-        isKillauraOn = false
+        if isKillauraOn then
+            isKillauraOn = false
+        end
     end
 end
 
@@ -136,34 +206,39 @@ end
 local function enableChamsESP()
     local function highlightPlayers()
         local players = game:GetService("Players"):GetPlayers()
-
+        
         for _, player in pairs(players) do
             local character = player.Character or player.CharacterAdded:Wait()
+            
+            if player.Team then
+                local highlight = Instance.new("Highlight")
+                highlight.Name = "PlayerHighlight"
+                highlight.Adornee = character
+                
+                if player.Team and player.Team.TeamColor then
+                    local teamColor = player.Team.TeamColor
+                    highlight.FillColor = teamColor.Color
+                    highlight.OutlineColor = teamColor.Color
+                else
+                    highlight.FillColor = Color3.fromRGB(255, 0, 0) -- Red color
+                    highlight.OutlineColor = Color3.fromRGB(255, 0, 0) -- Red color
+                end
+                
+                highlight.FillTransparency = 0.65
+                highlight.OutlineTransparency = 0.65
+                highlight.Parent = character
 
-            local highlight = Instance.new("Highlight")
-            highlight.Name = "PlayerHighlight"
-            highlight.Adornee = character
-
-            if player.Team and player.Team.TeamColor then
-                local teamColor = player.Team.TeamColor
-                highlight.FillColor = teamColor.Color
-                highlight.OutlineColor = teamColor.Color
-            else
-                highlight.FillColor = Color3.fromRGB(255, 255, 255)
-                highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+                player.CharacterAdded:Connect(function(char)
+                    highlight.Adornee = char
+                end)
             end
-
-            highlight.FillTransparency = 0.65
-            highlight.OutlineTransparency = 0.65
-            highlight.Parent = character
-
-            player.CharacterAdded:Connect(function(char)
-                highlight.Adornee = char
-            end)
         end
     end
 
-    highlightPlayers()
+    while isChamsESPOn do
+        highlightPlayers()
+        wait(3)  -- Run every 3 seconds
+    end
 end
 
 -- Function to disable Chams ESP
@@ -191,8 +266,22 @@ local function startTPWalking()
     while isTPWalkEnabled and chr and hum and hum.Parent do
         local delta = hb:Wait()
         if hum.MoveDirection.Magnitude > 0 then
-            chr:TranslateBy(hum.MoveDirection * delta * 30)  -- Increased speed
+            chr:TranslateBy(hum.MoveDirection * delta * 24)  -- Updated speed to 24
         end
+    end
+end
+
+-- Function to enable Infinite Stamina
+local function enableInfiniteStamina()
+    local Players = game:GetService("Players")
+    local localPlayer = Players.LocalPlayer
+    local character = localPlayer.Character
+    local humanoid = character and character:FindFirstChildWhichIsA("Humanoid")
+
+    if humanoid then
+        humanoid:GetPropertyChangedSignal("Stamina"):Connect(function()
+            humanoid.Stamina = humanoid.MaxStamina
+        end)
     end
 end
 
@@ -213,7 +302,6 @@ Tabs.Auras:AddParagraph({
     Title = "🛡️-NPC Aura🛡️"
 })
 
-
 -- Create and setup the Speed toggle
 local SpeedToggle = Tabs.Player:AddToggle("SpeedToggle", { Title = "Speed", Default = false })
 SpeedToggle:OnChanged(function(value)
@@ -223,21 +311,26 @@ SpeedToggle:OnChanged(function(value)
     end
 end)
 
--- Create and setup the Animal Aura toggle
-local AnimalAuraToggle = Tabs.Auras:AddToggle("AnimalAuraToggle", { Title = "Animal Aura", Default = false })
-AnimalAuraToggle:OnChanged(function(value)
-    print("Animal Aura is now " .. (value and "ON" or "OFF"))
-end)
-
 -- Create and setup the Titan Aura toggle
 local TitanAuraToggle = Tabs.Auras:AddToggle("TitanAuraToggle", { Title = "Titan Aura", Default = false })
 TitanAuraToggle:OnChanged(function(value)
-    print("Titan Aura is now " .. (value and "ON" or "OFF"))
+    if value then
+        if not isTitanAuraOn then
+            isTitanAuraOn = true
+            startTitanAura()
+        end
+    else
+        if isTitanAuraOn then
+            isTitanAuraOn = false
+            stopTitanAura()
+        end
+    end
 end)
 
 -- Create and setup the Chams ESP toggle
 local ChamsESPToggle = Tabs.Visual:AddToggle("ChamsESPToggle", { Title = "Chams ESP", Default = false })
 ChamsESPToggle:OnChanged(function(value)
+    isChamsESPOn = value
     if value then
         enableChamsESP()
     else
@@ -250,7 +343,7 @@ local InfiniteStaminaButton = Tabs.Misc:AddButton({
     Title = "💨-Infinite Stamina-💨",
     Description = "This script will enable Infinite Stamina.",
     Callback = function()
-        -- Placeholder for Infinite Stamina script
+        enableInfiniteStamina()
     end
 })
 
