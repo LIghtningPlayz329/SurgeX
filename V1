@@ -135,9 +135,9 @@ local function startTitanAura()
         if titan then
             local titanPrimaryPart = titan.PrimaryPart
             if titanPrimaryPart and isInRange(humanoidRootPart.Position, titanPrimaryPart.Position, 23) then
-                local orbitRadius = 5    -- Smaller orbit radius for a tighter orbit
-                local heightOffset = 10  -- Height above the Titan
-                local orbitSpeed = 10    -- Faster orbit speed
+                local orbitRadius = 15    -- Smaller orbit radius for a tighter orbit
+                local heightOffset = 13  -- Height above the Titan
+                local orbitSpeed = 9    -- Faster orbit speed
 
                 local time = tick() * orbitSpeed
                 local x = math.cos(time) * orbitRadius
