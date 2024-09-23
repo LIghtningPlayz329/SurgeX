@@ -100,7 +100,6 @@ local function enableInfiniteStamina()
     local lplr = game.Players.LocalPlayer
     lplr:SetAttribute("stamina", 1)
 
-    -- Listen for changes to the stamina attribute and reset it if needed
     lplr:GetAttributeChangedSignal("stamina"):Connect(function()
         if lplr:GetAttribute("stamina") ~= 1 then
             lplr:SetAttribute("stamina", 1)
@@ -112,6 +111,28 @@ end
 local function disableInfiniteStamina()
     local lplr = game.Players.LocalPlayer
     lplr:SetAttribute("stamina", 0) -- Reset stamina or implement other logic if needed
+end
+
+-- Function to disable fall damage
+local function disableFallDamage()
+    for _, desc in ipairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+        if desc:IsA("LocalScript") and desc.Name == "fallDamage" then
+            desc.Disabled = true
+            print("fallDamage LocalScript has been disabled.")
+            return
+        end
+    end
+end
+
+-- Function to enable fall damage
+local function enableFallDamage()
+    for _, desc in ipairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+        if desc:IsA("LocalScript") and desc.Name == "fallDamage" then
+            desc.Disabled = false
+            print("fallDamage LocalScript has been enabled.")
+            return
+        end
+    end
 end
 
 local isVisible = true
@@ -129,6 +150,13 @@ for _, button in ipairs({reachAuraButton, killauraButton, infStaminaButton, anti
                 enableInfiniteStamina() -- Enable when green
             else
                 disableInfiniteStamina() -- Disable when red
+            end
+        elseif button == antiFallDamageButton then
+            toggleButtonColor(button)
+            if button.BackgroundColor3 == Color3.new(0, 1, 0) then
+                disableFallDamage() -- Disable fall damage when green
+            else
+                enableFallDamage() -- Enable fall damage when red
             end
         else
             toggleButtonColor(button)
