@@ -1,0 +1,116 @@
+local screenGui = Instance.new("ScreenGui")
+screenGui.ResetOnSpawn = false
+screenGui.IgnoreGuiInset = true
+
+local frame = Instance.new("Frame")
+local uiStroke = Instance.new("UIStroke")
+
+screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- Set up the main frame
+frame.Parent = screenGui
+frame.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5)
+frame.Size = UDim2.new(0, 600, 0, 70)
+frame.Position = UDim2.new(0.5, -20, 0, -10)
+frame.AnchorPoint = Vector2.new(0.5, 0)
+
+uiStroke.Color = Color3.new(0, 0, 0)
+uiStroke.Thickness = 4
+uiStroke.Parent = frame
+
+local function createButton(position, text, color)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0, 120, 0, 40)
+    button.Position = position
+    button.BackgroundColor3 = color or Color3.new(1, 1, 1)
+    button.TextColor3 = (color == Color3.new(0, 0, 0)) and Color3.new(1, 1, 1) or Color3.new(0, 0, 0)
+    button.Text = text
+    button.Font = Enum.Font.SourceSans
+    button.TextSize = 18
+    button.TextWrapped = true
+    button.Parent = frame
+    
+    local buttonCorner = Instance.new("UICorner")
+    buttonCorner.CornerRadius = UDim.new(0, 10)
+    buttonCorner.Parent = button
+    
+    return button
+end
+
+local function toggleButtonColor(button)
+    if button.BackgroundColor3 == Color3.new(0, 1, 0) then
+        button.BackgroundColor3 = Color3.new(1, 0, 0)
+        button.TextColor3 = Color3.new(0, 0, 0)
+    else
+        button.BackgroundColor3 = Color3.new(0, 1, 0)
+        button.TextColor3 = Color3.new(0, 0, 0)
+    end
+end
+
+local spacing = 0.02
+local reachAuraButton = createButton(UDim2.new(0.06 - spacing / 2, 0, 0.5, -20), "Reach Aura", Color3.new(1, 1, 1))
+local killauraButton = createButton(UDim2.new(0.26 + spacing / 2, 0, 0.5, -20), "Killaura", Color3.new(1, 1, 1))
+local infStaminaButton = createButton(UDim2.new(0.5 + spacing / 2, 0, 0.5, -20), "Inf Stamina", Color3.new(0, 0, 0))
+local antiFallDamageButton = createButton(UDim2.new(0.72 + spacing / 2, 0, 0.5, -20), "Anti Fall Damage", Color3.new(0, 0, 0))
+
+-- Create a draggable toggle button
+local toggleButton = Instance.new("TextButton")
+toggleButton.Size = UDim2.new(0, 50, 0, 50)
+toggleButton.Position = UDim2.new(0, 10, 0.5, -25)
+toggleButton.BackgroundColor3 = Color3.new(0.8, 0.8, 0.8)
+toggleButton.Text = "/"
+toggleButton.Font = Enum.Font.SourceSans
+toggleButton.TextSize = 24
+toggleButton.Parent = screenGui
+
+-- Add rounded corners to the toggle button
+local toggleButtonCorner = Instance.new("UICorner")
+toggleButtonCorner.CornerRadius = UDim.new(0, 25) -- Fully rounded
+toggleButtonCorner.Parent = toggleButton
+
+-- Draggable functionality
+local dragging = false
+local dragStart, startPos
+
+toggleButton.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+
+        startPos = toggleButton.Position
+
+        local function updatePosition()
+            while dragging do
+                local delta = input.Position - dragStart
+                toggleButton.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+                wait()
+            end
+        end
+
+        updatePosition()
+    end
+end)
+
+toggleButton.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch then
+        dragging = false
+    end
+end)
+
+-- Hide/Show functionality
+local isVisible = true
+toggleButton.MouseButton1Click:Connect(function()
+    isVisible = not isVisible
+    frame.Visible = isVisible
+end)
+
+-- Connect button click events
+for _, button in ipairs({reachAuraButton, killauraButton, infStaminaButton, antiFallDamageButton}) do
+    button.MouseButton1Click:Connect(function()
+        toggleButtonColor(button)
+    end)
+end
+
+local bottomCorner = Instance.new("UICorner")
+bottomCorner.CornerRadius = UDim.new(0, 10)
+bottomCorner.Parent = frame
