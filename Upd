@@ -39,11 +39,11 @@ end
 
 local function toggleButtonColor(button)
     if button.BackgroundColor3 == Color3.new(0, 1, 0) then
-        button.BackgroundColor3 = Color3.new(1, 0, 0)
-        button.TextColor3 = Color3.new(0, 0, 0)
+        button.BackgroundColor3 = Color3.new(1, 0, 0) -- Change to red
+        button.TextColor3 = Color3.new(0, 0, 0) -- Change text to black
     else
-        button.BackgroundColor3 = Color3.new(0, 1, 0)
-        button.TextColor3 = Color3.new(0, 0, 0)
+        button.BackgroundColor3 = Color3.new(0, 1, 0) -- Change to green
+        button.TextColor3 = Color3.new(0, 0, 0) -- Change text to black
     end
 end
 
@@ -63,12 +63,10 @@ toggleButton.Font = Enum.Font.SourceSans
 toggleButton.TextSize = 24
 toggleButton.Parent = screenGui
 
--- Add rounded corners to the toggle button
 local toggleButtonCorner = Instance.new("UICorner")
-toggleButtonCorner.CornerRadius = UDim.new(0, 25) -- Fully rounded
+toggleButtonCorner.CornerRadius = UDim.new(0, 25)
 toggleButtonCorner.Parent = toggleButton
 
--- Draggable functionality
 local dragging = false
 local dragStart, startPos
 
@@ -97,7 +95,25 @@ toggleButton.InputEnded:Connect(function(input)
     end
 end)
 
--- Hide/Show functionality
+-- Function to enable infinite stamina
+local function enableInfiniteStamina()
+    local lplr = game.Players.LocalPlayer
+    lplr:SetAttribute("stamina", 1)
+
+    -- Listen for changes to the stamina attribute and reset it if needed
+    lplr:GetAttributeChangedSignal("stamina"):Connect(function()
+        if lplr:GetAttribute("stamina") ~= 1 then
+            lplr:SetAttribute("stamina", 1)
+        end
+    end)
+end
+
+-- Function to disable infinite stamina
+local function disableInfiniteStamina()
+    local lplr = game.Players.LocalPlayer
+    lplr:SetAttribute("stamina", 0) -- Reset stamina or implement other logic if needed
+end
+
 local isVisible = true
 toggleButton.MouseButton1Click:Connect(function()
     isVisible = not isVisible
@@ -107,7 +123,16 @@ end)
 -- Connect button click events
 for _, button in ipairs({reachAuraButton, killauraButton, infStaminaButton, antiFallDamageButton}) do
     button.MouseButton1Click:Connect(function()
-        toggleButtonColor(button)
+        if button == infStaminaButton then
+            toggleButtonColor(button)
+            if button.BackgroundColor3 == Color3.new(0, 1, 0) then
+                enableInfiniteStamina() -- Enable when green
+            else
+                disableInfiniteStamina() -- Disable when red
+            end
+        else
+            toggleButtonColor(button)
+        end
     end)
 end
 
