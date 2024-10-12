@@ -40,6 +40,31 @@ local TitanAuraToggle = Tabs.Combat:AddToggle("TitanAura", { Title = "Titan aura
 local HighlightTitanToggle = Tabs.Combat:AddToggle("HighlightTitan", { Title = "*Highlight Titan*", Default = false })
 local OrbitTitanToggle = Tabs.Combat:AddToggle("OrbitTitan", { Title = "*Orbit Titan*", Default = false })
 
+-- Function to enable Infinite Stamina
+local function enableInfiniteStamina()
+    local lplr = game.Players.LocalPlayer
+    lplr:SetAttribute("stamina", 1)
+
+    lplr:GetAttributeChangedSignal("stamina"):Connect(function()
+        if lplr:GetAttribute("stamina") ~= 1 then
+            lplr:SetAttribute("stamina", 1)
+        end
+    end) 
+end
+
+-- Function to disable Fall Damage
+local function disableFallDamage()
+    local lplr = game.Players.LocalPlayer
+    if lplr and lplr.Character then
+        for _, desc in ipairs(lplr.Character:GetDescendants()) do
+            if desc:IsA("LocalScript") and desc.Name == "fallDamage" then
+                desc.Disabled = true
+                return
+            end
+        end
+    end
+end
+
 -- Notifications
 task.wait(3) -- Wait for 3 seconds
 Fluent:Notify({
@@ -49,6 +74,8 @@ Fluent:Notify({
     Duration = 3
 })
 
+enableInfiniteStamina() -- Execute the infinite stamina function
+
 task.wait(6) -- Wait for 6 more seconds (total of 9 seconds)
 Fluent:Notify({
     Title = "Resource Loaded",
@@ -56,3 +83,18 @@ Fluent:Notify({
     Content = "Successfully Removed Fall Damage",
     Duration = 3
 })
+
+disableFallDamage() -- Execute the disable fall damage function
+
+-- Print random messages every 6 seconds
+local messages = {
+    "Made by ahmed645 on discord",
+    "https://discord.com/invite/KgChhHrn25",
+    "KynX Scripts on YT",
+    "Thanks for Supporting me"
+}
+
+while true do
+    wait(6)
+    print(messages[math.random(#messages)]) -- Print a random message from the list
+end
