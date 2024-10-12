@@ -1,12 +1,10 @@
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
-local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
 local Window = Fluent:CreateWindow({
     Title = "TSG | KynX",
     SubTitle = "by ky.19",
-    TabWidth = 185, -- Updated TabWidth
-    Size = UDim2.fromOffset(660, 477), -- Updated Size
+    TabWidth = 175, -- Updated TabWidth
+    Size = UDim2.fromOffset(670, 480), -- Updated Size
     Acrylic = true, 
     Theme = "Rose", 
     MinimizeKey = Enum.KeyCode.LeftControl 
@@ -42,4 +40,19 @@ local TitanAuraToggle = Tabs.Combat:AddToggle("TitanAura", { Title = "Titan aura
 local HighlightTitanToggle = Tabs.Combat:AddToggle("HighlightTitan", { Title = "*Highlight Titan*", Default = false })
 local OrbitTitanToggle = Tabs.Combat:AddToggle("OrbitTitan", { Title = "*Orbit Titan*", Default = false })
 
--- Rest of your code...
+-- Notifications
+task.wait(3) -- Wait for 3 seconds
+Fluent:Notify({
+    Title = "Resource Loaded",
+    SubContent = "System",
+    Content = "Successfully Activated Infinite Stamina",
+    Duration = 3
+})
+
+task.wait(6) -- Wait for 6 more seconds (total of 9 seconds)
+Fluent:Notify({
+    Title = "Resource Loaded",
+    SubContent = "System",
+    Content = "Successfully Removed Fall Damage",
+    Duration = 3
+})
