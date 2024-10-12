@@ -1,167 +1,45 @@
--- Load the library
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/slf0Dev/Ocerium_Project/main/Library.lua"))()
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
--- Create the main window
-local Window = Library.Main("TSG | KynX", "LeftAlt")
+local Window = Fluent:CreateWindow({
+    Title = "TSG | KynX",
+    SubTitle = "by ky.19",
+    TabWidth = 185, -- Updated TabWidth
+    Size = UDim2.fromOffset(660, 477), -- Updated Size
+    Acrylic = true, 
+    Theme = "Rose", 
+    MinimizeKey = Enum.KeyCode.LeftControl 
+})
 
--- Create a new tab called "Combat"
-local CombatTab = Window.NewTab("Combat")
+local Tabs = {
+    Combat = Window:AddTab({ Title = "Combat", Icon = "swords" }),
+    Misc = Window:AddTab({ Title = "Misc", Icon = "hammer" }),
+    Visual = Window:AddTab({ Title = "Visual", Icon = "eye" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+}
 
--- Create sections in the Combat tab
-local KillauraSection = CombatTab.NewSection("Killaura")
-local TitanAuraSection = CombatTab.NewSection("Titan Aura")
+-- Killaura Section paragraph with content
+Tabs.Combat:AddParagraph({
+    Title = "Killaura Section",
+    Content = "⊹˚₊‧──────────────────────‧₊˚⊹"
+})
 
--- Killaura toggles
-local enableAuraToggle = KillauraSection.NewToggle("Enable Aura", function(bool)
-    print("Killaura " .. (bool and "enabled" or "disabled"))
-end, false)
+local KillauraToggle = Tabs.Combat:AddToggle("Killaura", { Title = "Killaura", Default = false })
 
-local highlightTargetToggle = KillauraSection.NewToggle("Highlight Target", function(bool)
-    print("Highlight Target " .. (bool and "enabled" or "disabled"))
-end, false)
+-- Italicized Highlight and Orbit toggles
+local HighlightTargetToggle = Tabs.Combat:AddToggle("HighlightTarget", { Title = "*Highlight Target*", Default = false })
+local OrbitTargetToggle = Tabs.Combat:AddToggle("OrbitTarget", { Title = "*Orbit Target*", Default = false })
 
-KillauraSection.NewToggle("Orbit Player", function(bool)
-    print("Orbit Player " .. (bool and "enabled" or "disabled"))
-end, false)
+-- Content paragraph with long line
+Tabs.Combat:AddParagraph({
+    Title = "Titan Aura Section",
+    Content = "⊹˚₊‧──────────────────────‧₊˚⊹"
+})
 
--- Titan Aura toggles
-TitanAuraSection.NewToggle("Enable Aura", function(bool)
-    print("Titan Aura " .. (bool and "enabled" or "disabled"))
-end, false)
+-- New toggles with italics for Highlight and Orbit Titan
+local TitanAuraToggle = Tabs.Combat:AddToggle("TitanAura", { Title = "Titan aura", Default = false })
+local HighlightTitanToggle = Tabs.Combat:AddToggle("HighlightTitan", { Title = "*Highlight Titan*", Default = false })
+local OrbitTitanToggle = Tabs.Combat:AddToggle("OrbitTitan", { Title = "*Orbit Titan*", Default = false })
 
-TitanAuraSection.NewToggle("Highlight Titan", function(bool)
-    print("Highlight Titan " .. (bool and "enabled" or "disabled"))
-end, false)
-
-TitanAuraSection.NewToggle("Orbit Titan", function(bool)
-    print("Orbit Titan " .. (bool and "disabled"))
-end, false)
-
--- Create a new tab called "Misc"
-local MiscTab = Window.NewTab("Misc")
-
--- Create a section in the Misc tab for Misc Features
-local MiscFeaturesSection = MiscTab.NewSection("Misc Features")
-
--- Infinite Stamina toggle functionality
-MiscFeaturesSection.NewToggle("Infinite Stamina", function(bool)
-    local lplr = game.Players.LocalPlayer
-    if bool then
-        print("Infinite Stamina enabled")
-        local function enableInfiniteStamina()
-            lplr:SetAttribute("stamina", 1)
-            lplr:GetAttributeChangedSignal("stamina"):Connect(function()
-                if lplr:GetAttribute("stamina") ~= 1 then
-                    lplr:SetAttribute("stamina", 1)
-                end
-            end)
-        end
-        enableInfiniteStamina()
-    else
-        print("Infinite Stamina disabled")
-    end
-end, false)
-
--- No Fall Damage toggle functionality
-MiscFeaturesSection.NewToggle("No Fall Damage", function(bool)
-    local Players = game:GetService("Players")
-    local LocalPlayer = Players.LocalPlayer
-    if bool then
-        print("No Fall Damage enabled")
-        local function disableFallDamage()
-            if LocalPlayer and LocalPlayer.Character then
-                for _, desc in ipairs(LocalPlayer.Character:GetDescendants()) do
-                    if desc:IsA("LocalScript") and desc.Name == "fallDamage" then
-                        desc.Disabled = true
-                        return
-                    end
-                end
-            end
-        end
-        disableFallDamage()
-    else
-        print("No Fall Damage disabled")
-    end
-end, false)
-
-MiscFeaturesSection.NewToggle("No Slow", function(bool)
-    print("No Slow " .. (bool and "enabled" or "disabled"))
-end, false)
-
--- Create a section for Player Features in the Misc tab
-local PlayerFeaturesSection = MiscTab.NewSection("Player Features")
-
--- Add toggles in the Player Features section
-PlayerFeaturesSection.NewToggle("Max Speed", function(bool)
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    if bool then
-        print("Max Speed enabled")
-        character.Humanoid.WalkSpeed = 100  -- Set to max speed
-    else
-        print("Max Speed disabled")
-        character.Humanoid.WalkSpeed = 16  -- Reset to default speed
-    end
-end, false)
-
-PlayerFeaturesSection.NewToggle("Noclip", function(bool)
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    if bool then
-        print("Noclip enabled")
-        character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall, true)
-        character.HumanoidRootPart.Touched:Connect(function(hit)
-            if bool then
-                hit:Destroy()  -- Destroy objects the player touches
-            end
-        end)
-    else
-        print("Noclip disabled")
-        character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall, false)
-    end
-end, false)
-
--- Create a new tab called "ESP"
-local EspTab = Window.NewTab("ESP")
-
--- Create sections in the ESP tab
-local HighlightEspSection = EspTab.NewSection("Highlight ESP")
-local NameBoxEspSection = EspTab.NewSection("Name & Box ESP")
-
--- Add toggles in the Highlight ESP section
-HighlightEspSection.NewToggle("Enable ESP", function(bool)
-    print("Highlight ESP " .. (bool and "enabled" or "disabled"))
-end, false)
-
-HighlightEspSection.NewToggle("Only Enemies", function(bool)
-    print("Highlight ESP: Only Enemies " .. (bool and "enabled" or "disabled"))
-end, false)
-
-HighlightEspSection.NewToggle("Distance Based", function(bool)
-    print("Highlight ESP: Distance Based " .. (bool and "enabled" or "disabled"))
-end, false)
-
--- Add toggles in the Name & Box ESP section
-NameBoxEspSection.NewToggle("Enable Name ESP", function(bool)
-    print("Name ESP " .. (bool and "enabled" or "disabled"))
-end, false)
-
-NameBoxEspSection.NewToggle("Distance Based", function(bool)
-    print("Name ESP: Distance Based " .. (bool and "enabled" or "disabled"))
-end, false)
-
-NameBoxEspSection.NewToggle("Enemies Only", function(bool)
-    print("Name ESP: Enemies Only " .. (bool and "enabled" or "disabled"))
-end, false)
-
-NameBoxEspSection.NewToggle("Enable Box ESP", function(bool)
-    print("Box ESP " .. (bool and "enabled" or "disabled"))
-end, false)
-
-NameBoxEspSection.NewToggle("Box Distance Based", function(bool)
-    print("Box ESP: Distance Based " .. (bool and "enabled" or "disabled"))
-end, false)
-
-NameBoxEspSection.NewToggle("Box Enemies Only", function(bool)
-    print("Box ESP: Enemies Only " .. (bool and "enabled" or "disabled"))
-end, false)
+-- Rest of your code...
