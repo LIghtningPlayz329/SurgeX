@@ -1,3 +1,119 @@
+-- Create a ScreenGui for the Loading Bar
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "LoadingGui"
+screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- Create the loading rectangle frame
+local loadingFrame = Instance.new("Frame")
+loadingFrame.Size = UDim2.new(0.6, 0, 0.45, 0) -- Size of the rectangle
+loadingFrame.Position = UDim2.new(0.2, 0, 0.3, 0) -- Centered in the middle of the screen
+loadingFrame.Parent = screenGui
+
+-- Create a gradient for the loading frame (from lighter pink to a lighter black)
+local loadingGradient = Instance.new("UIGradient")
+loadingGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(250, 100, 150)), -- Lighter shade of pink
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(12, 12, 12)) -- Lighter black
+}
+loadingGradient.Parent = loadingFrame
+
+-- Add rounded corners to the loading frame
+local loadingFrameCorner = Instance.new("UICorner")
+loadingFrameCorner.CornerRadius = UDim.new(0.04, 0) -- Slightly rounded corners
+loadingFrameCorner.Parent = loadingFrame
+
+-- Create a title for the loading screen
+local titleText = Instance.new("TextLabel")
+titleText.Size = UDim2.new(1, 0, 0.2, 0) -- Size of the title
+titleText.Position = UDim2.new(0, 0, 0.05, 0) -- Moved down
+titleText.BackgroundTransparency = 1 -- Transparent background
+titleText.Text = "Welcome to KynX"
+titleText.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text
+titleText.Font = Enum.Font.SourceSansBold -- Bold font
+titleText.TextScaled = true -- Scale text
+titleText.Parent = loadingFrame
+
+-- Create the loading bar (dark grey/light black)
+local loadingBar = Instance.new("Frame")
+loadingBar.Size = UDim2.new(0.8, 0, 0.15, 0) -- Size of the loading bar
+loadingBar.Position = UDim2.new(0.1, 0, 0.55, 0) -- Moved down
+loadingBar.BackgroundColor3 = Color3.fromRGB(70, 70, 70) -- Lighter grey
+loadingBar.Parent = loadingFrame
+
+-- Add fully rounded corners to the loading bar
+local loadingBarCorner = Instance.new("UICorner")
+loadingBarCorner.CornerRadius = UDim.new(0.5, 0) -- Fully rounded corners for all sides
+loadingBarCorner.Parent = loadingBar
+
+-- Create a percentage text label for the loading bar
+local percentageText = Instance.new("TextLabel")
+percentageText.Size = UDim2.new(1, 0, 0.15, 0) -- Fill the width of the loading bar
+percentageText.Position = UDim2.new(0, 0, 0.33, 0) -- Positioned between title and loading bar
+percentageText.BackgroundTransparency = 1 -- Transparent background
+percentageText.Text = "0%"
+percentageText.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text
+percentageText.Font = Enum.Font.SourceSansBold -- Bold font
+percentageText.TextScaled = true -- Scale text
+percentageText.Parent = loadingFrame
+
+-- Create the animated loading indicator (lighter pink)
+local animatedBar = Instance.new("Frame")
+animatedBar.Size = UDim2.new(0, 0, 1, 0) -- Start at 0 width
+animatedBar.Position = UDim2.new(0, 0, 0, 0) -- Align to the left
+animatedBar.BackgroundColor3 = Color3.fromRGB(255, 100, 150) -- Lighter pink color for visibility
+animatedBar.Parent = loadingBar
+
+-- Add fully rounded corners to the animated loading bar
+local animatedBarCorner = Instance.new("UICorner")
+animatedBarCorner.CornerRadius = UDim.new(0.5, 0) -- Fully rounded corners for the animated bar
+animatedBarCorner.Parent = animatedBar
+
+-- Create status text labels
+local statusText = Instance.new("TextLabel")
+statusText.Size = UDim2.new(1, 0, 0.11, 0) -- Size of the status text
+statusText.Position = UDim2.new(0, 0, 0.8, 0) -- Positioned below the title
+statusText.BackgroundTransparency = 1 -- Transparent background
+statusText.Text = "Checking user preferences..."
+statusText.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text
+statusText.Font = Enum.Font.SourceSans -- Regular font
+statusText.TextScaled = true -- Scale text
+statusText.Parent = loadingFrame
+
+-- Status messages
+local statusMessages = {
+    "Checking user preferences...",
+    "Establishing connections...",
+    "Finalizing layout...",
+    "Applying themes..."
+}
+
+-- Function to update status texts periodically
+local function updateStatusTexts()
+    for _, text in ipairs(statusMessages) do
+        wait(1.5) -- Wait for 1.5 seconds before updating the status text
+        statusText.Text = text -- Update to the next status text
+    end
+end
+
+-- Start updating the status texts in a separate thread
+coroutine.wrap(updateStatusTexts)()
+
+-- Start the loading bar and percentage animation immediately
+for i = 1, 100 do
+    percentageText.Text = i .. "%" -- Update percentage text
+
+    -- Animate the loading bar
+    animatedBar.Size = UDim2.new(i / 100, 0, 1, 0) -- Fill the bar
+    wait(0.07) -- Simulate loading
+end
+
+-- Hide the loading screen after loading is complete
+screenGui.Enabled = false
+
+-- Unparent the loading GUI to clean up
+screenGui:Destroy()
+
+-- Load the Fluent library
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 
 local Window = Fluent:CreateWindow({
@@ -79,120 +195,3 @@ Tabs.LocalPlayer:AddParagraph({
 local NoclipToggle = Tabs.LocalPlayer:AddToggle("Noclip", { Title = "Noclip", Default = false }) -- Noclip toggle
 local SpeedBypassToggle = Tabs.LocalPlayer:AddToggle("SpeedBypass", { Title = "Speed Bypass", Default = false }) -- Speed Bypass toggle
 local JumpPowerToggle = Tabs.LocalPlayer:AddToggle("JumpPower", { Title = "Jump Power", Default = false }) -- Jump Power toggle
-
-local isTPWalkEnabled = false -- Variable to track if TPWalking is enabled
-
--- Functionality for toggles
-local function updateStamina()
-    local lplr = game.Players.LocalPlayer
-    if InfiniteStaminaToggle.Value then
-        lplr:SetAttribute("stamina", 1) -- Enable Infinite Stamina
-        lplr:GetAttributeChangedSignal("stamina"):Connect(function()
-            if lplr:GetAttribute("stamina") ~= 1 then
-                lplr:SetAttribute("stamina", 1) -- Keep stamina at 1
-            end
-        end)
-    else
-        lplr:SetAttribute("stamina", 0) -- Disable stamina
-    end
-end
-
-local function updateFallDamage()
-    local lplr = game.Players.LocalPlayer
-    if NoFallDamageToggle.Value then
-        if lplr.Character then
-            for _, desc in ipairs(lplr.Character:GetDescendants()) do
-                if desc:IsA("LocalScript") and desc.Name == "fallDamage" then
-                    desc.Disabled = true -- Disable fall damage
-                end
-            end
-        end
-    else
-        if lplr.Character then
-            for _, desc in ipairs(lplr.Character:GetDescendants()) do
-                if desc:IsA("LocalScript") and desc.Name == "fallDamage" then
-                    desc.Disabled = false -- Enable fall damage
-                end
-            end
-        end
-    end
-end
-
-local function updateNoClip()
-    local lplr = game.Players.LocalPlayer
-    if NoclipToggle.Value then
-        local character = lplr.Character or lplr.CharacterAdded:Wait()
-        character.Humanoid:ChangeState(11) -- Change state to allow noclip
-        character:MoveTo(character.Position) -- Keeps the player from being stuck
-        character.HumanoidRootPart.CFrame = character.HumanoidRootPart.CFrame + Vector3.new(0, 0.1, 0) -- Prevents sticking
-    else
-        local character = lplr.Character or lplr.CharacterAdded:Wait()
-        character.Humanoid:ChangeState(0) -- Change state to return to normal
-    end
-end
-
--- Handle Speed Bypass and Jump Power
-local function updateSpeedBypass()
-    local player = game.Players.LocalPlayer
-    if SpeedBypassToggle.Value then
-        isTPWalkEnabled = true
-        startTPWalking() -- Start TP Walking
-    else
-        isTPWalkEnabled = false -- Disable TP Walking
-    end
-end
-
-local function updateJumpPower()
-    local player = game.Players.LocalPlayer
-    if JumpPowerToggle.Value then
-        if player.Character then
-            local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-                humanoid.JumpPower = 90 -- Set Jump Power to 90
-            end
-        end
-    else
-        if player.Character then
-            local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-                humanoid.JumpPower = 50 -- Set back to normal Jump Power (default value)
-            end
-        end
-    end
-end
-
--- Function to start TP Walking
-local function startTPWalking()
-    local Players = game:GetService("Players")
-    local LocalPlayer = Players.LocalPlayer
-    local chr = LocalPlayer.Character
-    local hum = chr and chr:FindFirstChildWhichIsA("Humanoid")
-    local hb = game:GetService("RunService").Heartbeat
-
-    while isTPWalkEnabled and chr and hum and hum.Parent do
-        local delta = hb:Wait()
-        if hum.MoveDirection.Magnitude > 0 then
-            chr:TranslateBy(hum.MoveDirection * delta * 24)  -- Updated speed to 24
-        end
-    end
-end
-
--- Listen for toggle changes
-InfiniteStaminaToggle:OnChanged(function() updateStamina() end)
-NoFallDamageToggle:OnChanged(function() updateFallDamage() end)
-NoclipToggle:OnChanged(function() updateNoClip() end)
-SpeedBypassToggle:OnChanged(function() updateSpeedBypass() end)
-JumpPowerToggle:OnChanged(function() updateJumpPower() end)
-
--- Print random messages every 10 seconds
-local messages = {
-    "Join Our Discord",
-    "Showcase on YT: KynX Scripts",
-    "Codecraft is trash",
-    "https://discord.com/invite/KgChhHrn25"
-}
-
-while true do
-    wait(10) -- Changed to 10 seconds
-    print(messages[math.random(#messages)]) -- Print a random message from the list
-end
