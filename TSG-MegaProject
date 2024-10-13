@@ -2,9 +2,9 @@ local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/
 
 local Window = Fluent:CreateWindow({
     Title = "TSG | KynX",
-    SubTitle = "by ky.19",
-    TabWidth = 165, -- Reduced by 10
-    Size = UDim2.fromOffset(580, 365), -- Updated size to 580, 365
+    SubTitle = "by ky.19", -- Subtitle remains the same
+    TabWidth = 165,
+    Size = UDim2.fromOffset(580, 365), -- Size remains the same
     Acrylic = true, 
     Theme = "Darker", -- Changed theme to Darker
     MinimizeKey = Enum.KeyCode.LeftControl 
@@ -12,8 +12,10 @@ local Window = Fluent:CreateWindow({
 
 local Tabs = {
     Combat = Window:AddTab({ Title = "Combat", Icon = "swords" }),
+    Autofarm = Window:AddTab({ Title = "Autofarm", Icon = "axe" }), -- Changed Autofarm icon to axe
     Misc = Window:AddTab({ Title = "Misc", Icon = "hammer" }),
-    Visual = Window:AddTab({ Title = "Visual", Icon = "eye" }), -- Visual tab remains but contents are removed
+    Visual = Window:AddTab({ Title = "Visual", Icon = "eye" }),
+    LocalPlayer = Window:AddTab({ Title = "Local Player", Icon = "user" }), -- Local Player tab remains the same
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
@@ -23,7 +25,7 @@ Tabs.Combat:AddParagraph({
     Content = "⊹˚₊‧──────────────────────‧₊˚⊹"
 })
 
-local KillauraToggle = Tabs.Combat:AddToggle("Killaura", { Title = "Killaura", Default = false })
+local KillauraToggle = Tabs.Combat:AddToggle("Killaura", { Title = "Killaura", Default = false }) -- Title remains the same
 
 -- Italicized Highlight and Orbit toggles
 local HighlightTargetToggle = Tabs.Combat:AddToggle("HighlightTarget", { Title = "*Highlight Target*", Default = false })
@@ -40,65 +42,91 @@ local TitanAuraToggle = Tabs.Combat:AddToggle("TitanAura", { Title = "Titan aura
 local HighlightTitanToggle = Tabs.Combat:AddToggle("HighlightTitan", { Title = "*Highlight Titan*", Default = false })
 local OrbitTitanToggle = Tabs.Combat:AddToggle("OrbitTitan", { Title = "*Orbit Titan*", Default = false })
 
--- Removed everything inside Visual Tab as requested
+-- Autofarm Section (Placeholder for future functionality)
+Tabs.Autofarm:AddParagraph({
+    Title = "Autofarm Section",
+    Content = "⊹˚₊‧──────────────────────‧₊˚⊹"
+})
 
--- Function to enable Infinite Stamina
-local function enableInfiniteStamina()
+-- Visual Tab - Removed Box ESP toggle
+Tabs.Visual:AddParagraph({
+    Title = "Visual Features",
+    Content = "⊹˚₊‧──────────────────────‧₊˚⊹"
+})
+
+-- Local Player Tab
+Tabs.LocalPlayer:AddParagraph({
+    Title = "Utility Features",
+    Content = "⊹˚₊‧──────────────────────‧₊˚⊹"
+})
+
+local InfiniteStaminaToggle = Tabs.LocalPlayer:AddToggle("InfiniteStamina", { Title = "Infinite Stamina", Default = false })
+local NoFallDamageToggle = Tabs.LocalPlayer:AddToggle("NoFallDamage", { Title = "No Fall Damage", Default = false })
+local NoClipToggle = Tabs.LocalPlayer:AddToggle("NoClip", { Title = "Noclip", Default = false })
+
+-- Functionality based on toggles
+local function updateStamina()
     local lplr = game.Players.LocalPlayer
-    lplr:SetAttribute("stamina", 1)
-
-    lplr:GetAttributeChangedSignal("stamina"):Connect(function()
-        if lplr:GetAttribute("stamina") ~= 1 then
-            lplr:SetAttribute("stamina", 1)
-        end
-    end) 
+    if InfiniteStaminaToggle.Value then
+        lplr:SetAttribute("stamina", 1)
+        lplr:GetAttributeChangedSignal("stamina"):Connect(function()
+            if lplr:GetAttribute("stamina") ~= 1 then
+                lplr:SetAttribute("stamina", 1)
+            end
+        end)
+    else
+        lplr:SetAttribute("stamina", 0) -- or whatever value you want for disabled
+    end
 end
 
--- Function to disable Fall Damage
-local function disableFallDamage()
+local function updateFallDamage()
     local lplr = game.Players.LocalPlayer
-    if lplr and lplr.Character then
-        for _, desc in ipairs(lplr.Character:GetDescendants()) do
-            if desc:IsA("LocalScript") and desc.Name == "fallDamage" then
-                desc.Disabled = true
-                return
+    if NoFallDamageToggle.Value then
+        if lplr and lplr.Character then
+            for _, desc in ipairs(lplr.Character:GetDescendants()) do
+                if desc:IsA("LocalScript") and desc.Name == "fallDamage" then
+                    desc.Disabled = true
+                end
+            end
+        end
+    else
+        if lplr and lplr.Character then
+            for _, desc in ipairs(lplr.Character:GetDescendants()) do
+                if desc:IsA("LocalScript") and desc.Name == "fallDamage" then
+                    desc.Disabled = false
+                end
             end
         end
     end
 end
 
--- Notifications
-task.wait(3) -- Wait for 3 seconds
-Fluent:Notify({
-    Title = "Resource Loaded",
-    SubContent = "System",
-    Content = "Successfully Activated Infinite Stamina",
-    Duration = 3
-})
+local function updateNoClip()
+    local lplr = game.Players.LocalPlayer
+    if NoClipToggle.Value then
+        local character = lplr.Character or lplr.CharacterAdded:Wait()
+        character.Humanoid:ChangeState(11) -- Change state to allow noclip
+        character:MoveTo(character.Position) -- Keeps the player from being stuck
+        character.HumanoidRootPart.CFrame = character.HumanoidRootPart.CFrame + Vector3.new(0, 0.1, 0)
+    else
+        local character = lplr.Character or lplr.CharacterAdded:Wait()
+        character.Humanoid:ChangeState(0) -- Change state to return to normal
+    end
+end
 
-enableInfiniteStamina() -- Execute the infinite stamina function
-
-task.wait(6) -- Wait for 6 more seconds (total of 9 seconds)
-Fluent:Notify({
-    Title = "Resource Loaded",
-    SubContent = "System",
-    Content = "Successfully Removed Fall Damage",
-    Duration = 3
-})
-
-disableFallDamage() -- Execute the disable fall damage function
+-- Listen for changes
+InfiniteStaminaToggle:OnChanged(updateStamina)
+NoFallDamageToggle:OnChanged(updateFallDamage)
+NoClipToggle:OnChanged(updateNoClip)
 
 -- Print random messages every 10 seconds
 local messages = {
-    "Made by ahmed645 on discord",
-    "https://discord.com/invite/KgChhHrn25",
-    "KynX Scripts on YT",
     "Join Our Discord",
     "Showcase on YT: KynX Scripts",
-    "Codecraft is trash"
+    "Codecraft is trash",
+    "https://discord.com/invite/KgChhHrn25"
 }
 
 while true do
-    wait(10) -- Changed from 6 to 10 seconds
+    wait(10) -- Changed to 10 seconds
     print(messages[math.random(#messages)]) -- Print a random message from the list
 end
