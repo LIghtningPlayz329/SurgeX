@@ -3,8 +3,8 @@ local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/
 local Window = Fluent:CreateWindow({
     Title = "TSG | KynX",
     SubTitle = "by ky.19",
-    TabWidth = 175, -- Updated TabWidth
-    Size = UDim2.fromOffset(670, 480), -- Updated Size
+    TabWidth = 175,
+    Size = UDim2.fromOffset(590, 390), -- Updated Size
     Acrylic = true, 
     Theme = "Rose", 
     MinimizeKey = Enum.KeyCode.LeftControl 
@@ -15,7 +15,7 @@ local Tabs = {
     Misc = Window:AddTab({ Title = "Misc", Icon = "hammer" }),
     Visual = Window:AddTab({ Title = "Visual", Icon = "eye" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
-}
+})
 
 -- Killaura Section paragraph with content
 Tabs.Combat:AddParagraph({
@@ -23,7 +23,7 @@ Tabs.Combat:AddParagraph({
     Content = "⊹˚₊‧──────────────────────‧₊˚⊹"
 })
 
-local KillauraToggle = Tabs.Combat:AddToggle("Killaura", { Title = "Killaura", Default = false })
+local KillauraToggle = Tabs.Combat:AddToggle("Killaura", { Title = "Killaura", Default = false }) -- Changed title to Killaura
 
 -- Italicized Highlight and Orbit toggles
 local HighlightTargetToggle = Tabs.Combat:AddToggle("HighlightTarget", { Title = "*Highlight Target*", Default = false })
@@ -39,6 +39,33 @@ Tabs.Combat:AddParagraph({
 local TitanAuraToggle = Tabs.Combat:AddToggle("TitanAura", { Title = "Titan aura", Default = false })
 local HighlightTitanToggle = Tabs.Combat:AddToggle("HighlightTitan", { Title = "*Highlight Titan*", Default = false })
 local OrbitTitanToggle = Tabs.Combat:AddToggle("OrbitTitan", { Title = "*Orbit Titan*", Default = false })
+
+-- Visual Tab - Box ESP
+Tabs.Visual:AddParagraph({
+    Title = "Box ESP",
+    Content = "⊹˚₊‧──────────────────────‧₊˚⊹"
+})
+
+local NameESPToggle = Tabs.Visual:AddToggle("NameESP", { Title = "Name ESP", Default = false })
+local TeammatesOnlyToggle = Tabs.Visual:AddToggle("TeammatesOnly", { Title = "*Teammates Only*", Default = false })
+local EnemiesOnlyToggle = Tabs.Visual:AddToggle("EnemiesOnly", { Title = "*Enemies Only*", Default = false })
+
+-- Functionality based on toggles
+local function updateESP()
+    if NameESPToggle.Value then
+        if TeammatesOnlyToggle.Value then
+            -- Logic for displaying teammates' names
+        end
+        if EnemiesOnlyToggle.Value then
+            -- Logic for displaying enemies' names
+        end
+    end
+end
+
+-- Listen for changes
+NameESPToggle:OnChanged(updateESP)
+TeammatesOnlyToggle:OnChanged(updateESP)
+EnemiesOnlyToggle:OnChanged(updateESP)
 
 -- Function to enable Infinite Stamina
 local function enableInfiniteStamina()
