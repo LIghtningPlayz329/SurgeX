@@ -1,57 +1,64 @@
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 
 local Window = Fluent:CreateWindow({
-    Title = "TSG | KynX",
-    SubTitle = "by ky.19", -- Subtitle remains the same
+    Title = "SurgeX", -- Window name
+    SubTitle = "Kyi", -- Subtitle
     TabWidth = 165,
-    Size = UDim2.fromOffset(580, 365), -- Size remains the same
-    Acrylic = true, 
-    Theme = "Darker", -- Changed theme to Darker
+    Size = UDim2.fromOffset(580, 365), -- Size
+    Acrylic = true,
+    Theme = "Rose", -- Theme set to Rose
     MinimizeKey = Enum.KeyCode.LeftControl 
 })
 
 local Tabs = {
     Combat = Window:AddTab({ Title = "Combat", Icon = "swords" }),
-    Autofarm = Window:AddTab({ Title = "Autofarm", Icon = "axe" }), -- Changed Autofarm icon to axe
-    Misc = Window:AddTab({ Title = "Misc", Icon = "hammer" }),
+    Autofarm = Window:AddTab({ Title = "Autofarm", Icon = "axe" }), -- Autofarm tab with axe icon
+    Misc = Window:AddTab({ Title = "Misc", Icon = "wrench" }), -- Changed Misc tab icon to wrench
     Visual = Window:AddTab({ Title = "Visual", Icon = "eye" }),
-    LocalPlayer = Window:AddTab({ Title = "Local Player", Icon = "user" }), -- Local Player tab remains the same
-    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+    LocalPlayer = Window:AddTab({ Title = "Local Player", Icon = "user" }), -- Local Player tab with user icon
+    Notifications = Window:AddTab({ Title = "Notifications", Icon = "bell-ring" }) -- Added Notifications tab with webhook icon
 }
 
--- Killaura Section paragraph with content
+-- Killaura Section paragraph
 Tabs.Combat:AddParagraph({
     Title = "Killaura Section",
     Content = "⊹˚₊‧──────────────────────‧₊˚⊹"
 })
 
-local KillauraToggle = Tabs.Combat:AddToggle("Killaura", { Title = "Killaura", Default = false }) -- Title remains the same
+local KillauraToggle = Tabs.Combat:AddToggle("Killaura", { Title = "Killaura", Default = false }) -- Killaura toggle
+local HighlightTargetToggle = Tabs.Combat:AddToggle("HighlightTarget", { Title = "*Highlight Target*", Default = false }) -- Highlight Target toggle
+local OrbitTargetToggle = Tabs.Combat:AddToggle("OrbitTarget", { Title = "*Orbit Target*", Default = false }) -- Orbit Target toggle
 
--- Italicized Highlight and Orbit toggles
-local HighlightTargetToggle = Tabs.Combat:AddToggle("HighlightTarget", { Title = "*Highlight Target*", Default = false })
-local OrbitTargetToggle = Tabs.Combat:AddToggle("OrbitTarget", { Title = "*Orbit Target*", Default = false })
-
--- Content paragraph with long line
+-- Titan Aura Section paragraph
 Tabs.Combat:AddParagraph({
     Title = "Titan Aura Section",
     Content = "⊹˚₊‧──────────────────────‧₊˚⊹"
 })
 
--- New toggles with italics for Highlight and Orbit Titan
-local TitanAuraToggle = Tabs.Combat:AddToggle("TitanAura", { Title = "Titan aura", Default = false })
-local HighlightTitanToggle = Tabs.Combat:AddToggle("HighlightTitan", { Title = "*Highlight Titan*", Default = false })
-local OrbitTitanToggle = Tabs.Combat:AddToggle("OrbitTitan", { Title = "*Orbit Titan*", Default = false })
+local TitanAuraToggle = Tabs.Combat:AddToggle("TitanAura", { Title = "Titan Aura", Default = false }) -- Titan Aura toggle
+local HighlightTitanToggle = Tabs.Combat:AddToggle("HighlightTitan", { Title = "*Highlight Titan*", Default = false }) -- Highlight Titan toggle
+local OrbitTitanToggle = Tabs.Combat:AddToggle("OrbitTitan", { Title = "*Orbit Titan*", Default = false }) -- Orbit Titan toggle
 
--- Autofarm Section (Placeholder for future functionality)
+-- Autofarm Section
 Tabs.Autofarm:AddParagraph({
-    Title = "Autofarm Section",
+    Title = "Auto Eat", -- Title for Auto Eat
     Content = "⊹˚₊‧──────────────────────‧₊˚⊹"
 })
 
--- Visual Tab - Removed Box ESP toggle
-Tabs.Visual:AddParagraph({
-    Title = "Visual Features",
-    Content = "⊹˚₊‧──────────────────────‧₊˚⊹"
+local AutoEatToggle = Tabs.Autofarm:AddToggle("AutoEat", { Title = "Auto Eat", Default = false }) -- Auto Eat toggle
+local FoodDropdown = Tabs.Autofarm:AddDropdown("SelectFood", {
+    Title = "Select Food",
+    Values = {"Cabbage", "Carrot", "Berries"}, -- Food options
+    Multi = false,
+    Default = 1,
+})
+local StartHungerSlider = Tabs.Autofarm:AddSlider("StartHunger", {
+    Title = "Start Hunger", -- Title for Start Hunger
+    Description = "Set your starting hunger.",
+    Default = 100,
+    Min = 100,
+    Max = 1199,
+    Rounding = 1,
 })
 
 -- Local Player Tab
@@ -60,40 +67,51 @@ Tabs.LocalPlayer:AddParagraph({
     Content = "⊹˚₊‧──────────────────────‧₊˚⊹"
 })
 
-local InfiniteStaminaToggle = Tabs.LocalPlayer:AddToggle("InfiniteStamina", { Title = "Infinite Stamina", Default = false })
-local NoFallDamageToggle = Tabs.LocalPlayer:AddToggle("NoFallDamage", { Title = "No Fall Damage", Default = false })
-local NoClipToggle = Tabs.LocalPlayer:AddToggle("NoClip", { Title = "Noclip", Default = false })
+local InfiniteStaminaToggle = Tabs.LocalPlayer:AddToggle("InfiniteStamina", { Title = "Infinite Stamina", Default = false }) -- Infinite Stamina toggle
+local NoFallDamageToggle = Tabs.LocalPlayer:AddToggle("NoFallDamage", { Title = "No Fall Damage", Default = false }) -- No Fall Damage toggle
 
--- Functionality based on toggles
+-- New paragraph for Player Features
+Tabs.LocalPlayer:AddParagraph({
+    Title = "Player Features",
+    Content = "⊹˚₊‧──────────────────────‧₊˚⊹"
+})
+
+local NoclipToggle = Tabs.LocalPlayer:AddToggle("Noclip", { Title = "Noclip", Default = false }) -- Noclip toggle
+local SpeedBypassToggle = Tabs.LocalPlayer:AddToggle("SpeedBypass", { Title = "Speed Bypass", Default = false }) -- Speed Bypass toggle
+local JumpPowerToggle = Tabs.LocalPlayer:AddToggle("JumpPower", { Title = "Jump Power", Default = false }) -- Jump Power toggle
+
+local isTPWalkEnabled = false -- Variable to track if TPWalking is enabled
+
+-- Functionality for toggles
 local function updateStamina()
     local lplr = game.Players.LocalPlayer
     if InfiniteStaminaToggle.Value then
-        lplr:SetAttribute("stamina", 1)
+        lplr:SetAttribute("stamina", 1) -- Enable Infinite Stamina
         lplr:GetAttributeChangedSignal("stamina"):Connect(function()
             if lplr:GetAttribute("stamina") ~= 1 then
-                lplr:SetAttribute("stamina", 1)
+                lplr:SetAttribute("stamina", 1) -- Keep stamina at 1
             end
         end)
     else
-        lplr:SetAttribute("stamina", 0) -- or whatever value you want for disabled
+        lplr:SetAttribute("stamina", 0) -- Disable stamina
     end
 end
 
 local function updateFallDamage()
     local lplr = game.Players.LocalPlayer
     if NoFallDamageToggle.Value then
-        if lplr and lplr.Character then
+        if lplr.Character then
             for _, desc in ipairs(lplr.Character:GetDescendants()) do
                 if desc:IsA("LocalScript") and desc.Name == "fallDamage" then
-                    desc.Disabled = true
+                    desc.Disabled = true -- Disable fall damage
                 end
             end
         end
     else
-        if lplr and lplr.Character then
+        if lplr.Character then
             for _, desc in ipairs(lplr.Character:GetDescendants()) do
                 if desc:IsA("LocalScript") and desc.Name == "fallDamage" then
-                    desc.Disabled = false
+                    desc.Disabled = false -- Enable fall damage
                 end
             end
         end
@@ -102,21 +120,69 @@ end
 
 local function updateNoClip()
     local lplr = game.Players.LocalPlayer
-    if NoClipToggle.Value then
+    if NoclipToggle.Value then
         local character = lplr.Character or lplr.CharacterAdded:Wait()
         character.Humanoid:ChangeState(11) -- Change state to allow noclip
         character:MoveTo(character.Position) -- Keeps the player from being stuck
-        character.HumanoidRootPart.CFrame = character.HumanoidRootPart.CFrame + Vector3.new(0, 0.1, 0)
+        character.HumanoidRootPart.CFrame = character.HumanoidRootPart.CFrame + Vector3.new(0, 0.1, 0) -- Prevents sticking
     else
         local character = lplr.Character or lplr.CharacterAdded:Wait()
         character.Humanoid:ChangeState(0) -- Change state to return to normal
     end
 end
 
--- Listen for changes
-InfiniteStaminaToggle:OnChanged(updateStamina)
-NoFallDamageToggle:OnChanged(updateFallDamage)
-NoClipToggle:OnChanged(updateNoClip)
+-- Handle Speed Bypass and Jump Power
+local function updateSpeedBypass()
+    local player = game.Players.LocalPlayer
+    if SpeedBypassToggle.Value then
+        isTPWalkEnabled = true
+        startTPWalking() -- Start TP Walking
+    else
+        isTPWalkEnabled = false -- Disable TP Walking
+    end
+end
+
+local function updateJumpPower()
+    local player = game.Players.LocalPlayer
+    if JumpPowerToggle.Value then
+        if player.Character then
+            local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.JumpPower = 90 -- Set Jump Power to 90
+            end
+        end
+    else
+        if player.Character then
+            local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.JumpPower = 50 -- Set back to normal Jump Power (default value)
+            end
+        end
+    end
+end
+
+-- Function to start TP Walking
+local function startTPWalking()
+    local Players = game:GetService("Players")
+    local LocalPlayer = Players.LocalPlayer
+    local chr = LocalPlayer.Character
+    local hum = chr and chr:FindFirstChildWhichIsA("Humanoid")
+    local hb = game:GetService("RunService").Heartbeat
+
+    while isTPWalkEnabled and chr and hum and hum.Parent do
+        local delta = hb:Wait()
+        if hum.MoveDirection.Magnitude > 0 then
+            chr:TranslateBy(hum.MoveDirection * delta * 24)  -- Updated speed to 24
+        end
+    end
+end
+
+-- Listen for toggle changes
+InfiniteStaminaToggle:OnChanged(function() updateStamina() end)
+NoFallDamageToggle:OnChanged(function() updateFallDamage() end)
+NoclipToggle:OnChanged(function() updateNoClip() end)
+SpeedBypassToggle:OnChanged(function() updateSpeedBypass() end)
+JumpPowerToggle:OnChanged(function() updateJumpPower() end)
 
 -- Print random messages every 10 seconds
 local messages = {
