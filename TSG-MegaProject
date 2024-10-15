@@ -9,11 +9,11 @@ loadingFrame.Size = UDim2.new(0.6, 0, 0.45, 0) -- Size of the rectangle
 loadingFrame.Position = UDim2.new(0.2, 0, 0.3, 0) -- Centered in the middle of the screen
 loadingFrame.Parent = screenGui
 
--- Create a gradient for the loading frame (from lighter pink to a lighter black)
+-- Create a gradient for the loading frame (smooth grey to lighter black gradient with more area covered by grey and blended shades)
 local loadingGradient = Instance.new("UIGradient")
 loadingGradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(250, 100, 150)), -- Lighter shade of pink
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(12, 12, 12)) -- Lighter black
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(100, 100, 100)), -- Lighter grey
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(30, 30, 30)) -- Lighter black for smooth blending
 }
 loadingGradient.Parent = loadingFrame
 
@@ -37,7 +37,7 @@ titleText.Parent = loadingFrame
 local loadingBar = Instance.new("Frame")
 loadingBar.Size = UDim2.new(0.8, 0, 0.15, 0) -- Size of the loading bar
 loadingBar.Position = UDim2.new(0.1, 0, 0.55, 0) -- Moved down
-loadingBar.BackgroundColor3 = Color3.fromRGB(70, 70, 70) -- Lighter grey
+loadingBar.BackgroundColor3 = Color3.fromRGB(70, 70, 70) -- Grey color for loading bar
 loadingBar.Parent = loadingFrame
 
 -- Add fully rounded corners to the loading bar
@@ -56,11 +56,11 @@ percentageText.Font = Enum.Font.SourceSansBold -- Bold font
 percentageText.TextScaled = true -- Scale text
 percentageText.Parent = loadingFrame
 
--- Create the animated loading indicator (lighter pink)
+-- Create the animated loading indicator (dark grey for the animation)
 local animatedBar = Instance.new("Frame")
 animatedBar.Size = UDim2.new(0, 0, 1, 0) -- Start at 0 width
 animatedBar.Position = UDim2.new(0, 0, 0, 0) -- Align to the left
-animatedBar.BackgroundColor3 = Color3.fromRGB(255, 100, 150) -- Lighter pink color for visibility
+animatedBar.BackgroundColor3 = Color3.fromRGB(50, 50, 50) -- Dark grey for animation
 animatedBar.Parent = loadingBar
 
 -- Add fully rounded corners to the animated loading bar
@@ -84,7 +84,8 @@ local statusMessages = {
     "Checking user preferences...",
     "Establishing connections...",
     "Finalizing layout...",
-    "Applying themes..."
+    "Applying themes...",
+    "Script Loaded!" -- New message at the end
 }
 
 -- Function to update status texts periodically
