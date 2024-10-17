@@ -134,7 +134,7 @@ local Tabs = {
     Visual = Window:AddTab({ Title = "Visual", Icon = "eye" }),
     LocalPlayer = Window:AddTab({ Title = "Local Player", Icon = "user" }), -- Local Player tab with user icon
     Notifications = Window:AddTab({ Title = "Notifications", Icon = "bell-ring" }) -- Added Notifications tab with webhook icon
-}
+})
 
 -- Killaura Section paragraph
 Tabs.Combat:AddParagraph({
@@ -142,9 +142,57 @@ Tabs.Combat:AddParagraph({
     Content = "⊹˚₊‧──────────────────────‧₊˚⊹"
 })
 
+local KillauraEnabled = false
+local KillauraTask
+local HighlightEnabled = false
+local OrbitEnabled = false
+
+local function killauraenable()
+    KillauraEnabled = true
+    KillauraTask = task.spawn(function()
+        while KillauraEnabled do
+            if HighlightEnabled and OrbitEnabled then
+                print("MISSION COMPLETED")
+            elseif HighlightEnabled then
+                print("HIGHLIGHT # KILLAURA")
+            elseif OrbitEnabled then
+                print("ORBIT # KILLAURA")
+            else
+                print("KILLAURA toggle is on") -- Only prints when no other toggle is on
+            end
+            wait(2)
+        end
+    end)
+end
+
+local function killauradisable()
+    KillauraEnabled = false
+    if KillauraTask then
+        task.cancel(KillauraTask)
+        KillauraTask = nil
+    end
+end
+
 local KillauraToggle = Tabs.Combat:AddToggle("Killaura", { Title = "Killaura", Default = false }) -- Killaura toggle
+KillauraToggle:OnChanged(function()
+    if KillauraToggle.Value then
+        killauraenable()
+    else
+        killauradisable()
+    end
+end)
+
+-- Highlight Target Toggle
 local HighlightTargetToggle = Tabs.Combat:AddToggle("HighlightTarget", { Title = "*Highlight Target*", Default = false }) -- Highlight Target toggle
+HighlightTargetToggle:OnChanged(function()
+    HighlightEnabled = HighlightTargetToggle.Value
+end)
+
+-- Orbit Target Toggle
 local OrbitTargetToggle = Tabs.Combat:AddToggle("OrbitTarget", { Title = "*Orbit Target*", Default = false }) -- Orbit Target toggle
+OrbitTargetToggle:OnChanged(function()
+    OrbitEnabled = OrbitTargetToggle.Value
+end)
 
 -- Titan Aura Section paragraph
 Tabs.Combat:AddParagraph({
@@ -152,9 +200,57 @@ Tabs.Combat:AddParagraph({
     Content = "⊹˚₊‧──────────────────────‧₊˚⊹"
 })
 
+local TitanAuraEnabled = false
+local TitanAuraTask
+local HighlightTitanEnabled = false
+local OrbitTitanEnabled = false
+
+local function titanauraenable()
+    TitanAuraEnabled = true
+    TitanAuraTask = task.spawn(function()
+        while TitanAuraEnabled do
+            if HighlightTitanEnabled and OrbitTitanEnabled then
+                print("MISSION COMPLETED")
+            elseif HighlightTitanEnabled then
+                print("HIGHLIGHT # TITAN AURA")
+            elseif OrbitTitanEnabled then
+                print("ORBIT # TITAN AURA")
+            else
+                print("TITAN AURA toggle is on") -- Only prints when no other toggle is on
+            end
+            wait(2)
+        end
+    end)
+end
+
+local function titanauradisable()
+    TitanAuraEnabled = false
+    if TitanAuraTask then
+        task.cancel(TitanAuraTask)
+        TitanAuraTask = nil
+    end
+end
+
 local TitanAuraToggle = Tabs.Combat:AddToggle("TitanAura", { Title = "Titan Aura", Default = false }) -- Titan Aura toggle
+TitanAuraToggle:OnChanged(function()
+    if TitanAuraToggle.Value then
+        titanauraenable()
+    else
+        titanauradisable()
+    end
+end)
+
+-- Highlight Titan Toggle
 local HighlightTitanToggle = Tabs.Combat:AddToggle("HighlightTitan", { Title = "*Highlight Titan*", Default = false }) -- Highlight Titan toggle
+HighlightTitanToggle:OnChanged(function()
+    HighlightTitanEnabled = HighlightTitanToggle.Value
+end)
+
+-- Orbit Titan Toggle
 local OrbitTitanToggle = Tabs.Combat:AddToggle("OrbitTitan", { Title = "*Orbit Titan*", Default = false }) -- Orbit Titan toggle
+OrbitTitanToggle:OnChanged(function()
+    OrbitTitanEnabled = OrbitTitanToggle.Value
+end)
 
 -- Autofarm Section
 Tabs.Autofarm:AddParagraph({
@@ -260,45 +356,49 @@ end
 local function enableSpeedBypass()
     local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
     local humanoid = character:WaitForChild("Humanoid")
-    humanoid.WalkSpeed = 100 -- Set your desired speed here
+    
+    humanoid.WalkSpeed = 100 -- Set to your desired speed
 end
 
 -- Function to disable Speed Bypass
 local function disableSpeedBypass()
     local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
     local humanoid = character:WaitForChild("Humanoid")
-    humanoid.WalkSpeed = 16 -- Default speed
+    
+    humanoid.WalkSpeed = 16 -- Default WalkSpeed
 end
 
 -- Function to enable Jump Power
 local function enableJumpPower()
     local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
     local humanoid = character:WaitForChild("Humanoid")
-    humanoid.JumpPower = 100 -- Set your desired jump power here
+    
+    humanoid.JumpPower = 100 -- Set to your desired jump power
 end
 
 -- Function to disable Jump Power
 local function disableJumpPower()
     local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
     local humanoid = character:WaitForChild("Humanoid")
-    humanoid.JumpPower = 50 -- Default jump power
+    
+    humanoid.JumpPower = 50 -- Default JumpPower
 end
 
--- Toggle event for Infinite Stamina
+-- Toggle Infinite Stamina
 InfiniteStaminaToggle:OnChanged(function()
     if InfiniteStaminaToggle.Value then
         enableInfiniteStamina()
     end
 end)
 
--- Toggle event for No Fall Damage
+-- Toggle No Fall Damage
 NoFallDamageToggle:OnChanged(function()
     if NoFallDamageToggle.Value then
         disableFallDamage()
     end
 end)
 
--- Toggle event for Noclip
+-- Toggle Noclip
 NoclipToggle:OnChanged(function()
     if NoclipToggle.Value then
         enableNoclip()
@@ -307,7 +407,7 @@ NoclipToggle:OnChanged(function()
     end
 end)
 
--- Toggle event for Speed Bypass
+-- Toggle Speed Bypass
 SpeedBypassToggle:OnChanged(function()
     if SpeedBypassToggle.Value then
         enableSpeedBypass()
@@ -316,7 +416,7 @@ SpeedBypassToggle:OnChanged(function()
     end
 end)
 
--- Toggle event for Jump Power
+-- Toggle Jump Power
 JumpPowerToggle:OnChanged(function()
     if JumpPowerToggle.Value then
         enableJumpPower()
@@ -325,10 +425,26 @@ JumpPowerToggle:OnChanged(function()
     end
 end)
 
-Window:SelectTab(1)
-
-Fluent:Notify({
-    Title = "SurgeX",
-    Content = "The script has been loaded.",
-    Duration = 8
+-- Notifications Section
+Tabs.Notifications:AddParagraph({
+    Title = "Webhook Notifications",
+    Content = "⊹˚₊‧──────────────────────‧₊˚⊹"
 })
+
+local WebhookURLTextBox = Tabs.Notifications:AddTextBox("WebhookURL", { Title = "Webhook URL", PlaceholderText = "Enter your webhook URL" }) -- Webhook URL textbox
+local SendNotificationButton = Tabs.Notifications:AddButton("SendNotification", { Title = "Send Notification" }) -- Send Notification button
+
+SendNotificationButton:OnClick(function()
+    local webhookURL = WebhookURLTextBox.Value
+    if webhookURL ~= "" then
+        -- Send your webhook notification code here
+        print("Notification sent to: " .. webhookURL)
+    else
+        print("Please enter a valid webhook URL.")
+    end
+end)
+
+-- Connect the window close event
+Window.OnClosed:Connect(function()
+    -- Save any necessary settings before closing
+end)
