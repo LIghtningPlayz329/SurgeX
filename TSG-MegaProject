@@ -134,7 +134,7 @@ local Tabs = {
     Visual = Window:AddTab({ Title = "Visual", Icon = "eye" }),
     LocalPlayer = Window:AddTab({ Title = "Local Player", Icon = "user" }), -- Local Player tab with user icon
     Notifications = Window:AddTab({ Title = "Notifications", Icon = "bell-ring" }) -- Added Notifications tab with webhook icon
-})
+}
 
 -- Killaura Section paragraph
 Tabs.Combat:AddParagraph({
@@ -144,19 +144,14 @@ Tabs.Combat:AddParagraph({
 
 local KillauraEnabled = false
 local KillauraTask
-local HighlightEnabled = false
 local OrbitEnabled = false
 
 local function killauraenable()
     KillauraEnabled = true
     KillauraTask = task.spawn(function()
         while KillauraEnabled do
-            if HighlightEnabled and OrbitEnabled then
-                print("MISSION COMPLETED")
-            elseif HighlightEnabled then
-                print("HIGHLIGHT # KILLAURA")
-            elseif OrbitEnabled then
-                print("ORBIT # KILLAURA")
+            if OrbitEnabled then
+                print("ATTACK AURA # KILLAURA")
             else
                 print("KILLAURA toggle is on") -- Only prints when no other toggle is on
             end
@@ -182,14 +177,8 @@ KillauraToggle:OnChanged(function()
     end
 end)
 
--- Highlight Target Toggle
-local HighlightTargetToggle = Tabs.Combat:AddToggle("HighlightTarget", { Title = "*Highlight Target*", Default = false }) -- Highlight Target toggle
-HighlightTargetToggle:OnChanged(function()
-    HighlightEnabled = HighlightTargetToggle.Value
-end)
-
--- Orbit Target Toggle
-local OrbitTargetToggle = Tabs.Combat:AddToggle("OrbitTarget", { Title = "*Orbit Target*", Default = false }) -- Orbit Target toggle
+-- Attack Aura (Previously Orbit Target) Toggle
+local OrbitTargetToggle = Tabs.Combat:AddToggle("AttackAura", { Title = "Attack Aura", Default = false }) -- Attack Aura toggle
 OrbitTargetToggle:OnChanged(function()
     OrbitEnabled = OrbitTargetToggle.Value
 end)
@@ -202,19 +191,14 @@ Tabs.Combat:AddParagraph({
 
 local TitanAuraEnabled = false
 local TitanAuraTask
-local HighlightTitanEnabled = false
 local OrbitTitanEnabled = false
 
 local function titanauraenable()
     TitanAuraEnabled = true
     TitanAuraTask = task.spawn(function()
         while TitanAuraEnabled do
-            if HighlightTitanEnabled and OrbitTitanEnabled then
-                print("MISSION COMPLETED")
-            elseif HighlightTitanEnabled then
-                print("HIGHLIGHT # TITAN AURA")
-            elseif OrbitTitanEnabled then
-                print("ORBIT # TITAN AURA")
+            if OrbitTitanEnabled then
+                print("ATTACK AURA # TITAN AURA")
             else
                 print("TITAN AURA toggle is on") -- Only prints when no other toggle is on
             end
@@ -240,14 +224,8 @@ TitanAuraToggle:OnChanged(function()
     end
 end)
 
--- Highlight Titan Toggle
-local HighlightTitanToggle = Tabs.Combat:AddToggle("HighlightTitan", { Title = "*Highlight Titan*", Default = false }) -- Highlight Titan toggle
-HighlightTitanToggle:OnChanged(function()
-    HighlightTitanEnabled = HighlightTitanToggle.Value
-end)
-
--- Orbit Titan Toggle
-local OrbitTitanToggle = Tabs.Combat:AddToggle("OrbitTitan", { Title = "*Orbit Titan*", Default = false }) -- Orbit Titan toggle
+-- Attack Aura (Previously Orbit Titan) Toggle
+local OrbitTitanToggle = Tabs.Combat:AddToggle("AttackAuraTitan", { Title = "Attack Aura", Default = false }) -- Attack Aura toggle
 OrbitTitanToggle:OnChanged(function()
     OrbitTitanEnabled = OrbitTitanToggle.Value
 end)
@@ -384,21 +362,19 @@ local function disableJumpPower()
     humanoid.JumpPower = 50 -- Default JumpPower
 end
 
--- Toggle Infinite Stamina
+-- Toggle event connections
 InfiniteStaminaToggle:OnChanged(function()
     if InfiniteStaminaToggle.Value then
         enableInfiniteStamina()
     end
 end)
 
--- Toggle No Fall Damage
 NoFallDamageToggle:OnChanged(function()
     if NoFallDamageToggle.Value then
         disableFallDamage()
     end
 end)
 
--- Toggle Noclip
 NoclipToggle:OnChanged(function()
     if NoclipToggle.Value then
         enableNoclip()
@@ -407,7 +383,6 @@ NoclipToggle:OnChanged(function()
     end
 end)
 
--- Toggle Speed Bypass
 SpeedBypassToggle:OnChanged(function()
     if SpeedBypassToggle.Value then
         enableSpeedBypass()
@@ -416,7 +391,6 @@ SpeedBypassToggle:OnChanged(function()
     end
 end)
 
--- Toggle Jump Power
 JumpPowerToggle:OnChanged(function()
     if JumpPowerToggle.Value then
         enableJumpPower()
@@ -425,26 +399,6 @@ JumpPowerToggle:OnChanged(function()
     end
 end)
 
--- Notifications Section
-Tabs.Notifications:AddParagraph({
-    Title = "Webhook Notifications",
-    Content = "⊹˚₊‧──────────────────────‧₊˚⊹"
-})
-
-local WebhookURLTextBox = Tabs.Notifications:AddTextBox("WebhookURL", { Title = "Webhook URL", PlaceholderText = "Enter your webhook URL" }) -- Webhook URL textbox
-local SendNotificationButton = Tabs.Notifications:AddButton("SendNotification", { Title = "Send Notification" }) -- Send Notification button
-
-SendNotificationButton:OnClick(function()
-    local webhookURL = WebhookURLTextBox.Value
-    if webhookURL ~= "" then
-        -- Send your webhook notification code here
-        print("Notification sent to: " .. webhookURL)
-    else
-        print("Please enter a valid webhook URL.")
-    end
-end)
-
--- Connect the window close event
 Window.OnClosed:Connect(function()
     -- Save any necessary settings before closing
 end)
