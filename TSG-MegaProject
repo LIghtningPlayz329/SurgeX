@@ -113,7 +113,6 @@ screenGui.Enabled = false
 
 -- Unparent the loading GUI to clean up
 screenGui:Destroy()
-
 -- Load the Fluent library
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 
@@ -129,11 +128,11 @@ local Window = Fluent:CreateWindow({
 
 local Tabs = {
     Combat = Window:AddTab({ Title = "Combat", Icon = "swords" }),
-    Autofarm = Window:AddTab({ Title = "Autofarm", Icon = "axe" }), -- Autofarm tab with axe icon
-    Misc = Window:AddTab({ Title = "Misc", Icon = "wrench" }), -- Changed Misc tab icon to wrench
+    Autofarm = Window:AddTab({ Title = "Autofarm", Icon = "axe" }),
+    Misc = Window:AddTab({ Title = "Misc", Icon = "wrench" }),
     Visual = Window:AddTab({ Title = "Visual", Icon = "eye" }),
-    LocalPlayer = Window:AddTab({ Title = "Local Player", Icon = "user" }), -- Local Player tab with user icon
-    Notifications = Window:AddTab({ Title = "Notifications", Icon = "bell-ring" }) -- Added Notifications tab with webhook icon
+    LocalPlayer = Window:AddTab({ Title = "Local Player", Icon = "user" }),
+    Notifications = Window:AddTab({ Title = "Notifications", Icon = "bell-ring" })
 }
 
 -- Killaura Section paragraph
@@ -153,7 +152,7 @@ local function killauraenable()
             if OrbitEnabled then
                 print("ATTACK AURA # KILLAURA")
             else
-                print("KILLAURA toggle is on") -- Only prints when no other toggle is on
+                print("KILLAURA toggle is on")
             end
             wait(2)
         end
@@ -168,7 +167,7 @@ local function killauradisable()
     end
 end
 
-local KillauraToggle = Tabs.Combat:AddToggle("Killaura", { Title = "Killaura", Default = false }) -- Killaura toggle
+local KillauraToggle = Tabs.Combat:AddToggle("Killaura", { Title = "Killaura", Default = false })
 KillauraToggle:OnChanged(function()
     if KillauraToggle.Value then
         killauraenable()
@@ -177,8 +176,8 @@ KillauraToggle:OnChanged(function()
     end
 end)
 
--- Attack Aura (Previously Orbit Target) Toggle
-local OrbitTargetToggle = Tabs.Combat:AddToggle("AttackAura", { Title = "Attack Aura", Default = false }) -- Attack Aura toggle
+-- Attack Aura Toggle
+local OrbitTargetToggle = Tabs.Combat:AddToggle("AttackAura", { Title = "Attack Aura", Default = false })
 OrbitTargetToggle:OnChanged(function()
     OrbitEnabled = OrbitTargetToggle.Value
 end)
@@ -200,7 +199,7 @@ local function titanauraenable()
             if OrbitTitanEnabled then
                 print("ATTACK AURA # TITAN AURA")
             else
-                print("TITAN AURA toggle is on") -- Only prints when no other toggle is on
+                print("TITAN AURA toggle is on")
             end
             wait(2)
         end
@@ -215,7 +214,7 @@ local function titanauradisable()
     end
 end
 
-local TitanAuraToggle = Tabs.Combat:AddToggle("TitanAura", { Title = "Titan Aura", Default = false }) -- Titan Aura toggle
+local TitanAuraToggle = Tabs.Combat:AddToggle("TitanAura", { Title = "Titan Aura", Default = false })
 TitanAuraToggle:OnChanged(function()
     if TitanAuraToggle.Value then
         titanauraenable()
@@ -224,27 +223,27 @@ TitanAuraToggle:OnChanged(function()
     end
 end)
 
--- Attack Aura (Previously Orbit Titan) Toggle
-local OrbitTitanToggle = Tabs.Combat:AddToggle("AttackAuraTitan", { Title = "Attack Aura", Default = false }) -- Attack Aura toggle
+-- Attack Aura Toggle
+local OrbitTitanToggle = Tabs.Combat:AddToggle("AttackAuraTitan", { Title = "Attack Aura", Default = false })
 OrbitTitanToggle:OnChanged(function()
     OrbitTitanEnabled = OrbitTitanToggle.Value
 end)
 
 -- Autofarm Section
 Tabs.Autofarm:AddParagraph({
-    Title = "Auto Eat", -- Title for Auto Eat
+    Title = "Auto Eat",
     Content = "⊹˚₊‧──────────────────────‧₊˚⊹"
 })
 
-local AutoEatToggle = Tabs.Autofarm:AddToggle("AutoEat", { Title = "Auto Eat", Default = false }) -- Auto Eat toggle
+local AutoEatToggle = Tabs.Autofarm:AddToggle("AutoEat", { Title = "Auto Eat", Default = false })
 local FoodDropdown = Tabs.Autofarm:AddDropdown("SelectFood", {
     Title = "Select Food",
-    Values = {"Cabbage", "Carrot", "Berries"}, -- Food options
+    Values = {"Cabbage", "Carrot", "Berries"},
     Multi = false,
     Default = 1,
 })
 local StartHungerSlider = Tabs.Autofarm:AddSlider("StartHunger", {
-    Title = "Start Hunger", -- Title for Start Hunger
+    Title = "Start Hunger",
     Description = "Set your starting hunger.",
     Default = 100,
     Min = 100,
@@ -258,8 +257,8 @@ Tabs.LocalPlayer:AddParagraph({
     Content = "⊹˚₊‧──────────────────────‧₊˚⊹"
 })
 
-local InfiniteStaminaToggle = Tabs.LocalPlayer:AddToggle("InfiniteStamina", { Title = "Infinite Stamina", Default = false }) -- Infinite Stamina toggle
-local NoFallDamageToggle = Tabs.LocalPlayer:AddToggle("NoFallDamage", { Title = "No Fall Damage", Default = false }) -- No Fall Damage toggle
+local InfiniteStaminaToggle = Tabs.LocalPlayer:AddToggle("InfiniteStamina", { Title = "Infinite Stamina", Default = false })
+local NoFallDamageToggle = Tabs.LocalPlayer:AddToggle("NoFallDamage", { Title = "No Fall Damage", Default = false })
 
 -- New paragraph for Player Features
 Tabs.LocalPlayer:AddParagraph({
@@ -274,6 +273,12 @@ local JumpPowerToggle = Tabs.LocalPlayer:AddToggle("JumpPower", { Title = "Jump 
 -- LocalScript to enable infinite stamina and disable fall damage
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+-- TP Walking variables
+local tpwalking = false
+local hb = RunService.Heartbeat
 
 -- Function to enable infinite stamina
 local function enableInfiniteStamina()
@@ -330,20 +335,33 @@ local function disableNoclip()
     end
 end
 
+-- Function to enable TP Walk
+local function enableTPWalk(speed)
+    tpwalking = true
+    local chr = LocalPlayer.Character
+    local hum = chr and chr:FindFirstChildWhichIsA("Humanoid")
+
+    while tpwalking and chr and hum and hum.Parent do
+        local delta = hb:Wait()
+        if hum.MoveDirection.Magnitude > 0 then
+            chr:TranslateBy(hum.MoveDirection * speed * delta * 9) -- Use 16 for TPWalk speed
+        end
+    end
+end
+
+-- Function to disable TP Walk
+local function disableTPWalk()
+    tpwalking = false
+end
+
 -- Function to enable Speed Bypass
 local function enableSpeedBypass()
-    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local humanoid = character:WaitForChild("Humanoid")
-    
-    humanoid.WalkSpeed = 100 -- Set to your desired speed
+    enableTPWalk(9) -- Call TP Walk with speed 16
 end
 
 -- Function to disable Speed Bypass
 local function disableSpeedBypass()
-    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local humanoid = character:WaitForChild("Humanoid")
-    
-    humanoid.WalkSpeed = 16 -- Default WalkSpeed
+    disableTPWalk() -- Disable TP Walk
 end
 
 -- Function to enable Jump Power
@@ -351,7 +369,7 @@ local function enableJumpPower()
     local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
     local humanoid = character:WaitForChild("Humanoid")
     
-    humanoid.JumpPower = 100 -- Set to your desired jump power
+    humanoid.JumpPower = 85 -- Set to reduced Jump Power
 end
 
 -- Function to disable Jump Power
@@ -378,16 +396,20 @@ end)
 NoclipToggle:OnChanged(function()
     if NoclipToggle.Value then
         enableNoclip()
+        enableSpeedBypass() -- Enable Speed Bypass when Noclip is enabled
+        enableJumpPower() -- Enable Jump Power when Noclip is enabled
     else
         disableNoclip()
+        disableSpeedBypass() -- Disable Speed Bypass when Noclip is disabled
+        disableJumpPower() -- Disable Jump Power when Noclip is disabled
     end
 end)
 
 SpeedBypassToggle:OnChanged(function()
     if SpeedBypassToggle.Value then
-        enableSpeedBypass()
+        enableSpeedBypass() -- Enable Speed Bypass
     else
-        disableSpeedBypass()
+        disableSpeedBypass() -- Disable Speed Bypass
     end
 end)
 
