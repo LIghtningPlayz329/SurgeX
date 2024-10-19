@@ -228,7 +228,7 @@ local function enableTPWalk(speed)
     while tpwalking and chr and hum and hum.Parent do
         local delta = hb:Wait()
         if hum.MoveDirection.Magnitude > 0 then
-            chr:TranslateBy(hum.MoveDirection * speed * delta * 9) -- Use 9 for TPWalk speed
+            chr:TranslateBy(hum.MoveDirection * speed * delta * 6) -- Use 6 for TPWalk speed
         end
     end
 end
@@ -240,7 +240,7 @@ end
 
 -- Function to enable Speed Bypass
 local function enableSpeedBypass()
-    enableTPWalk(9) -- Call TP Walk with speed 9
+    enableTPWalk(6) -- Call TP Walk with speed 6
 end
 
 -- Function to disable Speed Bypass
