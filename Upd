@@ -1,103 +1,173 @@
-local screenGui = Instance.new("ScreenGui")
-screenGui.ResetOnSpawn = false
-screenGui.IgnoreGuiInset = true
+-- Load the Fluent library
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 
-local frame = Instance.new("Frame")
-local uiStroke = Instance.new("UIStroke")
+local Window = Fluent:CreateWindow({
+    Title = "SurgeX", -- Window name
+    SubTitle = "Kyi", -- Subtitle
+    TabWidth = 165,
+    Size = UDim2.fromOffset(580, 360), -- Size
+    Acrylic = true,
+    Theme = "Amethyst", -- Theme set to Darker
+    MinimizeKey = Enum.KeyCode.LeftControl 
+})
 
-screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+local Tabs = {
+    Combat = Window:AddTab({ Title = "Combat", Icon = "swords" }),
+    Autofarm = Window:AddTab({ Title = "Autofarm", Icon = "axe" }),
+    Misc = Window:AddTab({ Title = "Misc", Icon = "wrench" }),
+    Visual = Window:AddTab({ Title = "Visual", Icon = "eye" }),
+    LocalPlayer = Window:AddTab({ Title = "Local Player", Icon = "user" }),
+    Notifications = Window:AddTab({ Title = "Notifications", Icon = "bell-ring" })
+}
 
--- Set up the main frame
-frame.Parent = screenGui
-frame.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5)
-frame.Size = UDim2.new(0, 600, 0, 70)
-frame.Position = UDim2.new(0.5, -20, 0, -10)
-frame.AnchorPoint = Vector2.new(0.5, 0)
+-- Killaura Section paragraph
+Tabs.Combat:AddParagraph({
+    Title = "Killaura Section",
+    Content = "⊹˚₊‧──────────────────────‧₊˚⊹"
+})
 
-uiStroke.Color = Color3.new(0, 0, 0)
-uiStroke.Thickness = 4
-uiStroke.Parent = frame
+local KillauraEnabled = false
+local KillauraTask
+local OrbitEnabled = false
 
-local function createButton(position, text, color)
-    local button = Instance.new("TextButton")
-    button.Size = UDim2.new(0, 120, 0, 40)
-    button.Position = position
-    button.BackgroundColor3 = color or Color3.new(1, 1, 1)
-    button.TextColor3 = (color == Color3.new(0, 0, 0)) and Color3.new(1, 1, 1) or Color3.new(0, 0, 0)
-    button.Text = text
-    button.Font = Enum.Font.SourceSans
-    button.TextSize = 18
-    button.TextWrapped = true
-    button.Parent = frame
-    
-    local buttonCorner = Instance.new("UICorner")
-    buttonCorner.CornerRadius = UDim.new(0, 10)
-    buttonCorner.Parent = button
-    
-    return button
-end
-
-local function toggleButtonColor(button)
-    if button.BackgroundColor3 == Color3.new(0, 1, 0) then
-        button.BackgroundColor3 = Color3.new(1, 0, 0) -- Change to red
-        button.TextColor3 = Color3.new(0, 0, 0) -- Change text to black
-    else
-        button.BackgroundColor3 = Color3.new(0, 1, 0) -- Change to green
-        button.TextColor3 = Color3.new(0, 0, 0) -- Change text to black
-    end
-end
-
-local spacing = 0.02
-local reachAuraButton = createButton(UDim2.new(0.06 - spacing / 2, 0, 0.5, -20), "Reach Aura", Color3.new(1, 1, 1))
-local killauraButton = createButton(UDim2.new(0.26 + spacing / 2, 0, 0.5, -20), "Killaura", Color3.new(1, 1, 1))
-local infStaminaButton = createButton(UDim2.new(0.5 + spacing / 2, 0, 0.5, -20), "Inf Stamina", Color3.new(0, 0, 0))
-local antiFallDamageButton = createButton(UDim2.new(0.72 + spacing / 2, 0, 0.5, -20), "Anti Fall Damage", Color3.new(0, 0, 0))
-
--- Create a draggable toggle button
-local toggleButton = Instance.new("TextButton")
-toggleButton.Size = UDim2.new(0, 50, 0, 50)
-toggleButton.Position = UDim2.new(0, 10, 0.5, -25)
-toggleButton.BackgroundColor3 = Color3.new(0.8, 0.8, 0.8)
-toggleButton.Text = "/"
-toggleButton.Font = Enum.Font.SourceSans
-toggleButton.TextSize = 24
-toggleButton.Parent = screenGui
-
-local toggleButtonCorner = Instance.new("UICorner")
-toggleButtonCorner.CornerRadius = UDim.new(0, 25)
-toggleButtonCorner.Parent = toggleButton
-
-local dragging = false
-local dragStart, startPos
-
-toggleButton.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.Touch then
-        dragging = true
-        dragStart = input.Position
-
-        startPos = toggleButton.Position
-
-        local function updatePosition()
-            while dragging do
-                local delta = input.Position - dragStart
-                toggleButton.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-                wait()
+local function killauraenable()
+    KillauraEnabled = true
+    KillauraTask = task.spawn(function()
+        while KillauraEnabled do
+            if OrbitEnabled then
+                print("ATTACK AURA # KILLAURA")
+            else
+                print("KILLAURA toggle is on")
             end
+            wait(2)
         end
+    end)
+end
 
-        updatePosition()
+local function killauradisable()
+    KillauraEnabled = false
+    if KillauraTask then
+        task.cancel(KillauraTask)
+        KillauraTask = nil
+    end
+end
+
+local KillauraToggle = Tabs.Combat:AddToggle("Killaura", { Title = "Killaura", Default = false })
+KillauraToggle:OnChanged(function()
+    if KillauraToggle.Value then
+        killauraenable()
+    else
+        killauradisable()
     end
 end)
 
-toggleButton.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.Touch then
-        dragging = false
+-- Attack Aura Toggle
+local OrbitTargetToggle = Tabs.Combat:AddToggle("AttackAura", { Title = "Attack Aura", Default = false })
+OrbitTargetToggle:OnChanged(function()
+    OrbitEnabled = OrbitTargetToggle.Value
+end)
+
+-- Titan Aura Section paragraph
+Tabs.Combat:AddParagraph({
+    Title = "Titan Aura Section",
+    Content = "⊹˚₊‧──────────────────────‧₊˚⊹"
+})
+
+local TitanAuraEnabled = false
+local TitanAuraTask
+local OrbitTitanEnabled = false
+
+local function titanauraenable()
+    TitanAuraEnabled = true
+    TitanAuraTask = task.spawn(function()
+        while TitanAuraEnabled do
+            if OrbitTitanEnabled then
+                print("ATTACK AURA # TITAN AURA")
+            else
+                print("TITAN AURA toggle is on")
+            end
+            wait(2)
+        end
+    end)
+end
+
+local function titanauradisable()
+    TitanAuraEnabled = false
+    if TitanAuraTask then
+        task.cancel(TitanAuraTask)
+        TitanAuraTask = nil
+    end
+end
+
+local TitanAuraToggle = Tabs.Combat:AddToggle("TitanAura", { Title = "Titan Aura", Default = false })
+TitanAuraToggle:OnChanged(function()
+    if TitanAuraToggle.Value then
+        titanauraenable()
+    else
+        titanauradisable()
     end
 end)
+
+-- Attack Aura Toggle
+local OrbitTitanToggle = Tabs.Combat:AddToggle("AttackAuraTitan", { Title = "Attack Aura", Default = false })
+OrbitTitanToggle:OnChanged(function()
+    OrbitTitanEnabled = OrbitTitanToggle.Value
+end)
+
+-- Autofarm Section
+Tabs.Autofarm:AddParagraph({
+    Title = "Auto Eat",
+    Content = "⊹˚₊‧──────────────────────‧₊˚⊹"
+})
+
+local AutoEatToggle = Tabs.Autofarm:AddToggle("AutoEat", { Title = "Auto Eat", Default = false })
+local FoodDropdown = Tabs.Autofarm:AddDropdown("SelectFood", {
+    Title = "Select Food",
+    Values = {"Cabbage", "Carrot", "Berries"},
+    Multi = false,
+    Default = 1,
+})
+local StartHungerSlider = Tabs.Autofarm:AddSlider("StartHunger", {
+    Title = "Start Hunger",
+    Description = "Set your starting hunger.",
+    Default = 100,
+    Min = 100,
+    Max = 1199,
+    Rounding = 1,
+})
+
+-- Local Player Tab
+Tabs.LocalPlayer:AddParagraph({
+    Title = "Utility Features",
+    Content = "⊹˚₊‧──────────────────────‧₊˚⊹"
+})
+
+local InfiniteStaminaToggle = Tabs.LocalPlayer:AddToggle("InfiniteStamina", { Title = "Infinite Stamina", Default = false })
+local NoFallDamageToggle = Tabs.LocalPlayer:AddToggle("NoFallDamage", { Title = "No Fall Damage", Default = false })
+
+-- New paragraph for Player Features
+Tabs.LocalPlayer:AddParagraph({
+    Title = "Player Features",
+    Content = "⊹˚₊‧──────────────────────‧₊˚⊹"
+})
+
+local NoclipToggle = Tabs.LocalPlayer:AddToggle("Noclip", { Title = "Noclip", Default = false }) -- Noclip toggle
+local SpeedBypassToggle = Tabs.LocalPlayer:AddToggle("SpeedBypass", { Title = "Speed Bypass", Default = false }) -- Speed Bypass toggle
+local JumpPowerToggle = Tabs.LocalPlayer:AddToggle("JumpPower", { Title = "Jump Power", Default = false }) -- Jump Power toggle
+
+-- LocalScript to enable infinite stamina and disable fall damage
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+-- TP Walking variables
+local tpwalking = false
+local hb = RunService.Heartbeat
 
 -- Function to enable infinite stamina
 local function enableInfiniteStamina()
-    local lplr = game.Players.LocalPlayer
+    local lplr = LocalPlayer
     lplr:SetAttribute("stamina", 1)
 
     lplr:GetAttributeChangedSignal("stamina"):Connect(function()
@@ -107,63 +177,134 @@ local function enableInfiniteStamina()
     end)
 end
 
--- Function to disable infinite stamina
-local function disableInfiniteStamina()
-    local lplr = game.Players.LocalPlayer
-    lplr:SetAttribute("stamina", 0) -- Reset stamina or implement other logic if needed
-end
-
--- Function to disable fall damage
+-- Function to disable the fallDamage LocalScript
 local function disableFallDamage()
-    for _, desc in ipairs(game.Players.LocalPlayer.Character:GetDescendants()) do
-        if desc:IsA("LocalScript") and desc.Name == "fallDamage" then
-            desc.Disabled = true
-            print("fallDamage LocalScript has been disabled.")
-            return
+    if LocalPlayer and LocalPlayer.Character then
+        for _, desc in ipairs(LocalPlayer.Character:GetDescendants()) do
+            if desc:IsA("LocalScript") and desc.Name == "fallDamage" then
+                desc.Disabled = true
+                return
+            end
         end
     end
 end
 
--- Function to enable fall damage
-local function enableFallDamage()
-    for _, desc in ipairs(game.Players.LocalPlayer.Character:GetDescendants()) do
-        if desc:IsA("LocalScript") and desc.Name == "fallDamage" then
-            desc.Disabled = false
-            print("fallDamage LocalScript has been enabled.")
-            return
+-- Function to enable Noclip
+local function enableNoclip()
+    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local humanoid = character:WaitForChild("Humanoid")
+    
+    local noclip = true
+    humanoid:GetPropertyChangedSignal("PlatformStand"):Connect(function()
+        humanoid.PlatformStand = noclip
+    end)
+    
+    while noclip do
+        wait()
+        for _, part in ipairs(character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
         end
     end
 end
 
-local isVisible = true
-toggleButton.MouseButton1Click:Connect(function()
-    isVisible = not isVisible
-    frame.Visible = isVisible
+-- Function to disable Noclip
+local function disableNoclip()
+    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    for _, part in ipairs(character:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.CanCollide = true
+        end
+    end
+end
+
+-- Function to enable TP Walk
+local function enableTPWalk(speed)
+    tpwalking = true
+    local chr = LocalPlayer.Character
+    local hum = chr and chr:FindFirstChildWhichIsA("Humanoid")
+
+    while tpwalking and chr and hum and hum.Parent do
+        local delta = hb:Wait()
+        if hum.MoveDirection.Magnitude > 0 then
+            chr:TranslateBy(hum.MoveDirection * speed * delta * 9) -- Use 9 for TPWalk speed
+        end
+    end
+end
+
+-- Function to disable TP Walk
+local function disableTPWalk()
+    tpwalking = false
+end
+
+-- Function to enable Speed Bypass
+local function enableSpeedBypass()
+    enableTPWalk(9) -- Call TP Walk with speed 9
+end
+
+-- Function to disable Speed Bypass
+local function disableSpeedBypass()
+    disableTPWalk() -- Disable TP Walk
+end
+
+-- Function to enable Jump Power
+local function enableJumpPower()
+    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local humanoid = character:WaitForChild("Humanoid")
+    
+    humanoid.JumpPower = 75 -- Set to reduced Jump Power
+end
+
+-- Function to disable Jump Power
+local function disableJumpPower()
+    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local humanoid = character:WaitForChild("Humanoid")
+    
+    humanoid.JumpPower = 50 -- Default JumpPower
+end
+
+-- Toggle event connections
+InfiniteStaminaToggle:OnChanged(function()
+    if InfiniteStaminaToggle.Value then
+        enableInfiniteStamina()
+    end
 end)
 
--- Connect button click events
-for _, button in ipairs({reachAuraButton, killauraButton, infStaminaButton, antiFallDamageButton}) do
-    button.MouseButton1Click:Connect(function()
-        if button == infStaminaButton then
-            toggleButtonColor(button)
-            if button.BackgroundColor3 == Color3.new(0, 1, 0) then
-                enableInfiniteStamina() -- Enable when green
-            else
-                disableInfiniteStamina() -- Disable when red
-            end
-        elseif button == antiFallDamageButton then
-            toggleButtonColor(button)
-            if button.BackgroundColor3 == Color3.new(0, 1, 0) then
-                disableFallDamage() -- Disable fall damage when green
-            else
-                enableFallDamage() -- Enable fall damage when red
-            end
-        else
-            toggleButtonColor(button)
-        end
-    end)
-end
+NoFallDamageToggle:OnChanged(function()
+    if NoFallDamageToggle.Value then
+        disableFallDamage()
+    end
+end)
 
-local bottomCorner = Instance.new("UICorner")
-bottomCorner.CornerRadius = UDim.new(0, 10)
-bottomCorner.Parent = frame
+NoclipToggle:OnChanged(function()
+    if NoclipToggle.Value then
+        enableNoclip()
+        enableSpeedBypass() -- Enable Speed Bypass when Noclip is enabled
+        enableJumpPower() -- Enable Jump Power when Noclip is enabled
+    else
+        disableNoclip()
+        disableSpeedBypass() -- Disable Speed Bypass when Noclip is disabled
+        disableJumpPower() -- Disable Jump Power when Noclip is disabled
+    end
+end)
+
+SpeedBypassToggle:OnChanged(function()
+    if SpeedBypassToggle.Value then
+        enableSpeedBypass() -- Enable Speed Bypass
+    else
+        disableSpeedBypass() -- Disable Speed Bypass
+    end
+end)
+
+JumpPowerToggle:OnChanged(function()
+    if JumpPowerToggle.Value then
+        enableJumpPower()
+    else
+        disableJumpPower()
+    end
+end)
+
+Window.OnClosed:Connect(function()
+    -- Save any necessary settings before closing
+end)
