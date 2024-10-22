@@ -1,426 +1,157 @@
--- Create a ScreenGui for the Loading Bar
+-- Create ScreenGui
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "LoadingGui"
 screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+screenGui.ResetOnSpawn = false
 
--- Create the loading rectangle frame
-local loadingFrame = Instance.new("Frame")
-loadingFrame.Size = UDim2.new(0.6, 0, 0.45, 0) -- Size of the rectangle
-loadingFrame.Position = UDim2.new(0.2, 0, 0.3, 0) -- Centered in the middle of the screen
-loadingFrame.Parent = screenGui
+-- Create the Frame (Rectangle)
+local rectangle = Instance.new("Frame")
+rectangle.Size = UDim2.new(0.33, 0, 0.28, 0)  -- Adjusted rectangle size from both sides
+rectangle.Position = UDim2.new(0.5, 0, 0.5, 0) -- Center the rectangle
+rectangle.AnchorPoint = Vector2.new(0.5, 0.5)
+rectangle.BackgroundTransparency = 0
+rectangle.BorderSizePixel = 0  -- No outline
+rectangle.Parent = screenGui
 
--- Create a gradient for the loading frame (smooth grey to lighter black gradient with more area covered by grey and blended shades)
-local loadingGradient = Instance.new("UIGradient")
-loadingGradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(100, 100, 100)), -- Lighter grey
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(30, 30, 30)) -- Lighter black for smooth blending
-}
-loadingGradient.Parent = loadingFrame
+-- Add UICorner for rounded corners (reduced corner radius)
+local uiCorner = Instance.new("UICorner")
+uiCorner.CornerRadius = UDim.new(0.02, 0)  -- Reduced corner radius
+uiCorner.Parent = rectangle
 
--- Add rounded corners to the loading frame
-local loadingFrameCorner = Instance.new("UICorner")
-loadingFrameCorner.CornerRadius = UDim.new(0.04, 0) -- Slightly rounded corners
-loadingFrameCorner.Parent = loadingFrame
+-- Create a UIGradient with adjusted reddish dark red, darker red, and red
+local uiGradient = Instance.new("UIGradient")
+uiGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(60, 0, 0)),    -- Dark dark reddish red
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(120, 0, 0)), -- Dark red
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(180, 0, 0))    -- Darker red
+})
+uiGradient.Parent = rectangle
 
--- Create a title for the loading screen
-local titleText = Instance.new("TextLabel")
-titleText.Size = UDim2.new(1, 0, 0.2, 0) -- Size of the title
-titleText.Position = UDim2.new(0, 0, 0.05, 0) -- Moved down
-titleText.BackgroundTransparency = 1 -- Transparent background
-titleText.Text = "Welcome to KynX"
-titleText.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text
-titleText.Font = Enum.Font.SourceSansBold -- Bold font
-titleText.TextScaled = true -- Scale text
-titleText.Parent = loadingFrame
-
--- Create the loading bar (dark grey/light black)
-local loadingBar = Instance.new("Frame")
-loadingBar.Size = UDim2.new(0.8, 0, 0.15, 0) -- Size of the loading bar
-loadingBar.Position = UDim2.new(0.1, 0, 0.55, 0) -- Moved down
-loadingBar.BackgroundColor3 = Color3.fromRGB(70, 70, 70) -- Grey color for loading bar
-loadingBar.Parent = loadingFrame
-
--- Add fully rounded corners to the loading bar
-local loadingBarCorner = Instance.new("UICorner")
-loadingBarCorner.CornerRadius = UDim.new(0.5, 0) -- Fully rounded corners for all sides
-loadingBarCorner.Parent = loadingBar
-
--- Create a percentage text label for the loading bar
-local percentageText = Instance.new("TextLabel")
-percentageText.Size = UDim2.new(1, 0, 0.15, 0) -- Fill the width of the loading bar
-percentageText.Position = UDim2.new(0, 0, 0.33, 0) -- Positioned between title and loading bar
-percentageText.BackgroundTransparency = 1 -- Transparent background
-percentageText.Text = "0%"
-percentageText.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text
-percentageText.Font = Enum.Font.SourceSansBold -- Bold font
-percentageText.TextScaled = true -- Scale text
-percentageText.Parent = loadingFrame
-
--- Create the animated loading indicator (dark grey for the animation)
-local animatedBar = Instance.new("Frame")
-animatedBar.Size = UDim2.new(0, 0, 1, 0) -- Start at 0 width
-animatedBar.Position = UDim2.new(0, 0, 0, 0) -- Align to the left
-animatedBar.BackgroundColor3 = Color3.fromRGB(50, 50, 50) -- Dark grey for animation
-animatedBar.Parent = loadingBar
-
--- Add fully rounded corners to the animated loading bar
-local animatedBarCorner = Instance.new("UICorner")
-animatedBarCorner.CornerRadius = UDim.new(0.5, 0) -- Fully rounded corners for the animated bar
-animatedBarCorner.Parent = animatedBar
-
--- Create status text labels
-local statusText = Instance.new("TextLabel")
-statusText.Size = UDim2.new(1, 0, 0.11, 0) -- Size of the status text
-statusText.Position = UDim2.new(0, 0, 0.8, 0) -- Positioned below the title
-statusText.BackgroundTransparency = 1 -- Transparent background
-statusText.Text = "Checking user preferences..."
-statusText.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text
-statusText.Font = Enum.Font.SourceSans -- Regular font
-statusText.TextScaled = true -- Scale text
-statusText.Parent = loadingFrame
-
--- Status messages
-local statusMessages = {
-    "Checking user preferences...",
-    "Establishing connections...",
-    "Finalizing layout...",
-    "Applying themes...",
-    "Script Loaded!" -- New message at the end
+-- Create 4 buttons, evenly sized and positioned inside the rectangle
+local toggleNames = {
+    "Killaura [Orbit Target]",
+    "Attack Aura [Auto Reach Player]",
+    "Titan Aura [Orbit Titan]",  -- Changed text for the third toggle
+    "Attack Aura [Auto Reach Titan]"
 }
 
--- Function to update status texts periodically
-local function updateStatusTexts()
-    for _, text in ipairs(statusMessages) do
-        wait(1.5) -- Wait for 1.5 seconds before updating the status text
-        statusText.Text = text -- Update to the next status text
+for i = 1, 4 do
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0.92, 0, 0.2, 0)  -- Each button occupies 20% of the height and 92% width of the rectangle
+    button.Position = UDim2.new(0.04, 0, (i - 1) * 0.24 + 0.05, 0)  -- Evenly position the buttons vertically
+    button.Text = toggleNames[i]  -- Set text based on toggleNames array
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)  -- White text
+    button.TextScaled = true  -- Scale the text
+    button.Font = Enum.Font.GothamBold  -- Change to a cartoony font
+
+    -- Decrease text size for specific toggles
+    if i == 1 or i == 3 then
+        button.TextSize = 12  -- Reduced text size for Killaura and Titan Aura
     end
+
+    button.Parent = rectangle
+
+    -- Add rounded corners to the buttons
+    local buttonCorner = Instance.new("UICorner")
+    buttonCorner.CornerRadius = UDim.new(0.1, 0)  -- Adjust button corner radius if needed
+    buttonCorner.Parent = button
+
+    -- Add a darker gradient for each button (even more dark grey to dark grey)
+    local buttonGradient = Instance.new("UIGradient")
+    buttonGradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(30, 30, 30)),   -- Even darker grey
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(70, 70, 70))    -- Dark grey
+    })
+    buttonGradient.Parent = button
 end
 
--- Start updating the status texts in a separate thread
-coroutine.wrap(updateStatusTexts)()
+-- Create the Square with Rounded Corners (changed to TextButton)
+local square = Instance.new("TextButton")
+square.Size = UDim2.new(0.07, 0, 0.07, 0)  -- Slightly decreased size for the button
+square.Position = UDim2.new(0, 0, 1, -90)  -- Position it at the bottom left corner
+square.BackgroundTransparency = 0
+square.Parent = screenGui
 
--- Start the loading bar and percentage animation immediately
-for i = 1, 100 do
-    percentageText.Text = i .. "%" -- Update percentage text
+-- Add UICorner for the square
+local squareCorner = Instance.new("UICorner")
+squareCorner.CornerRadius = UDim.new(0.1, 0)  -- Rounded corners for the square
+squareCorner.Parent = square
 
-    -- Animate the loading bar
-    animatedBar.Size = UDim2.new(i / 100, 0, 1, 0) -- Fill the bar
-    wait(0.07) -- Simulate loading
-end
-
--- Hide the loading screen after loading is complete
-screenGui.Enabled = false
-
--- Unparent the loading GUI to clean up
-screenGui:Destroy()
--- Load the Fluent library
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-
-local Window = Fluent:CreateWindow({
-    Title = "SurgeX", -- Window name
-    SubTitle = "Kyi", -- Subtitle
-    TabWidth = 165,
-    Size = UDim2.fromOffset(580, 360), -- Size
-    Acrylic = true,
-    Theme = "Darker", -- Theme set to Darker
-    MinimizeKey = Enum.KeyCode.LeftControl 
+-- Add a UIGradient for the square (red gradient)
+local squareGradient = Instance.new("UIGradient")
+squareGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(60, 0, 0)),    -- Dark red
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(180, 0, 0))     -- Red
 })
+squareGradient.Parent = square
 
-local Tabs = {
-    Combat = Window:AddTab({ Title = "Combat", Icon = "swords" }),
-    Autofarm = Window:AddTab({ Title = "Autofarm", Icon = "axe" }),
-    Misc = Window:AddTab({ Title = "Misc", Icon = "wrench" }),
-    Visual = Window:AddTab({ Title = "Visual", Icon = "eye" }),
-    LocalPlayer = Window:AddTab({ Title = "Local Player", Icon = "user" }),
-    Notifications = Window:AddTab({ Title = "Notifications", Icon = "bell-ring" })
-}
+-- Add a label to the square
+local label = Instance.new("TextLabel")
+label.Size = UDim2.new(1, 0, 1, 0)  -- Cover the whole square
+label.BackgroundTransparency = 1  -- Make background transparent
+label.Text = "Hide UI"  -- Updated text
+label.TextColor3 = Color3.fromRGB(255, 255, 255)  -- White text
+label.TextScaled = true  -- Scale the text
+label.Font = Enum.Font.GothamBold  -- Change to a cartoony font
+label.TextSize = 14  -- Keep text size as is
+label.Parent = square
 
--- Killaura Section paragraph
-Tabs.Combat:AddParagraph({
-    Title = "Killaura Section",
-    Content = "⊹˚₊‧──────────────────────‧₊˚⊹"
-})
+-- Hide the entire UI when the square is clicked
+square.MouseButton1Click:Connect(function()
+    if rectangle.Visible then
+        rectangle.Visible = false  -- Hide the main UI
+        label.Text = "Show UI"  -- Change text to "Show UI"
+    else
+        rectangle.Visible = true  -- Show the main UI
+        label.Text = "Hide UI"  -- Change text back to "Hide UI"
+    end
+end)
 
-local KillauraEnabled = false
-local KillauraTask
-local OrbitEnabled = false
+-- Make the toggle square movable on PC and mobile
+local dragging
+local dragInput
+local startPos
 
-local function killauraenable()
-    KillauraEnabled = true
-    KillauraTask = task.spawn(function()
-        while KillauraEnabled do
-            if OrbitEnabled then
-                print("ATTACK AURA # KILLAURA")
-            else
-                print("KILLAURA toggle is on")
-            end
-            wait(2)
+local function startDrag(input)
+    dragging = true
+    startPos = input.Position
+
+    -- Disable other UI interactions while dragging
+    dragInput = game:GetService("UserInputService").InputChanged:Connect(function()
+        if dragging then
+            local delta = input.Position - startPos
+            local newPos = UDim2.new(
+                square.Position.X.Scale,
+                square.Position.X.Offset + delta.X,
+                square.Position.Y.Scale,
+                square.Position.Y.Offset + delta.Y
+            )
+            square.Position = newPos
+            startPos = input.Position -- Update start position to allow for smoother dragging
+        end
+    end)
+
+    square.InputEnded:Connect(function()
+        dragging = false
+        if dragInput then
+            dragInput:Disconnect()
+            dragInput = nil
         end
     end)
 end
 
-local function killauradisable()
-    KillauraEnabled = false
-    if KillauraTask then
-        task.cancel(KillauraTask)
-        KillauraTask = nil
-    end
-end
-
-local KillauraToggle = Tabs.Combat:AddToggle("Killaura", { Title = "Killaura", Default = false })
-KillauraToggle:OnChanged(function()
-    if KillauraToggle.Value then
-        killauraenable()
-    else
-        killauradisable()
+-- Input handling for dragging
+square.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or 
+       input.UserInputType == Enum.UserInputType.Touch then  -- Support for mobile
+        startDrag(input)
     end
 end)
 
--- Attack Aura Toggle
-local OrbitTargetToggle = Tabs.Combat:AddToggle("AttackAura", { Title = "Attack Aura", Default = false })
-OrbitTargetToggle:OnChanged(function()
-    OrbitEnabled = OrbitTargetToggle.Value
-end)
-
--- Titan Aura Section paragraph
-Tabs.Combat:AddParagraph({
-    Title = "Titan Aura Section",
-    Content = "⊹˚₊‧──────────────────────‧₊˚⊹"
-})
-
-local TitanAuraEnabled = false
-local TitanAuraTask
-local OrbitTitanEnabled = false
-
-local function titanauraenable()
-    TitanAuraEnabled = true
-    TitanAuraTask = task.spawn(function()
-        while TitanAuraEnabled do
-            if OrbitTitanEnabled then
-                print("ATTACK AURA # TITAN AURA")
-            else
-                print("TITAN AURA toggle is on")
-            end
-            wait(2)
-        end
-    end)
-end
-
-local function titanauradisable()
-    TitanAuraEnabled = false
-    if TitanAuraTask then
-        task.cancel(TitanAuraTask)
-        TitanAuraTask = nil
+-- Cleanup when dragging ends
+square.InputEnded:Connect(function()
+    dragging = false
+    if dragInput then
+        dragInput:Disconnect()
+        dragInput = nil
     end
-end
-
-local TitanAuraToggle = Tabs.Combat:AddToggle("TitanAura", { Title = "Titan Aura", Default = false })
-TitanAuraToggle:OnChanged(function()
-    if TitanAuraToggle.Value then
-        titanauraenable()
-    else
-        titanauradisable()
-    end
-end)
-
--- Attack Aura Toggle
-local OrbitTitanToggle = Tabs.Combat:AddToggle("AttackAuraTitan", { Title = "Attack Aura", Default = false })
-OrbitTitanToggle:OnChanged(function()
-    OrbitTitanEnabled = OrbitTitanToggle.Value
-end)
-
--- Autofarm Section
-Tabs.Autofarm:AddParagraph({
-    Title = "Auto Eat",
-    Content = "⊹˚₊‧──────────────────────‧₊˚⊹"
-})
-
-local AutoEatToggle = Tabs.Autofarm:AddToggle("AutoEat", { Title = "Auto Eat", Default = false })
-local FoodDropdown = Tabs.Autofarm:AddDropdown("SelectFood", {
-    Title = "Select Food",
-    Values = {"Cabbage", "Carrot", "Berries"},
-    Multi = false,
-    Default = 1,
-})
-local StartHungerSlider = Tabs.Autofarm:AddSlider("StartHunger", {
-    Title = "Start Hunger",
-    Description = "Set your starting hunger.",
-    Default = 100,
-    Min = 100,
-    Max = 1199,
-    Rounding = 1,
-})
-
--- Local Player Tab
-Tabs.LocalPlayer:AddParagraph({
-    Title = "Utility Features",
-    Content = "⊹˚₊‧──────────────────────‧₊˚⊹"
-})
-
-local InfiniteStaminaToggle = Tabs.LocalPlayer:AddToggle("InfiniteStamina", { Title = "Infinite Stamina", Default = false })
-local NoFallDamageToggle = Tabs.LocalPlayer:AddToggle("NoFallDamage", { Title = "No Fall Damage", Default = false })
-
--- New paragraph for Player Features
-Tabs.LocalPlayer:AddParagraph({
-    Title = "Player Features",
-    Content = "⊹˚₊‧──────────────────────‧₊˚⊹"
-})
-
-local NoclipToggle = Tabs.LocalPlayer:AddToggle("Noclip", { Title = "Noclip", Default = false }) -- Noclip toggle
-local SpeedBypassToggle = Tabs.LocalPlayer:AddToggle("SpeedBypass", { Title = "Speed Bypass", Default = false }) -- Speed Bypass toggle
-local JumpPowerToggle = Tabs.LocalPlayer:AddToggle("JumpPower", { Title = "Jump Power", Default = false }) -- Jump Power toggle
-
--- LocalScript to enable infinite stamina and disable fall damage
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
-
--- TP Walking variables
-local tpwalking = false
-local hb = RunService.Heartbeat
-
--- Function to enable infinite stamina
-local function enableInfiniteStamina()
-    local lplr = LocalPlayer
-    lplr:SetAttribute("stamina", 1)
-
-    lplr:GetAttributeChangedSignal("stamina"):Connect(function()
-        if lplr:GetAttribute("stamina") ~= 1 then
-            lplr:SetAttribute("stamina", 1)
-        end
-    end)
-end
-
--- Function to disable the fallDamage LocalScript
-local function disableFallDamage()
-    if LocalPlayer and LocalPlayer.Character then
-        for _, desc in ipairs(LocalPlayer.Character:GetDescendants()) do
-            if desc:IsA("LocalScript") and desc.Name == "fallDamage" then
-                desc.Disabled = true
-                print("fallDamage LocalScript has been disabled.")
-                return
-            end
-        end
-    end
-end
-
--- Function to enable Noclip
-local function enableNoclip()
-    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local humanoid = character:WaitForChild("Humanoid")
-    
-    local noclip = true
-    humanoid:GetPropertyChangedSignal("PlatformStand"):Connect(function()
-        humanoid.PlatformStand = noclip
-    end)
-    
-    while noclip do
-        wait()
-        for _, part in ipairs(character:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.CanCollide = false
-            end
-        end
-    end
-end
-
--- Function to disable Noclip
-local function disableNoclip()
-    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    for _, part in ipairs(character:GetDescendants()) do
-        if part:IsA("BasePart") then
-            part.CanCollide = true
-        end
-    end
-end
-
--- Function to enable TP Walk
-local function enableTPWalk(speed)
-    tpwalking = true
-    local chr = LocalPlayer.Character
-    local hum = chr and chr:FindFirstChildWhichIsA("Humanoid")
-
-    while tpwalking and chr and hum and hum.Parent do
-        local delta = hb:Wait()
-        if hum.MoveDirection.Magnitude > 0 then
-            chr:TranslateBy(hum.MoveDirection * speed * delta * 9) -- Use 16 for TPWalk speed
-        end
-    end
-end
-
--- Function to disable TP Walk
-local function disableTPWalk()
-    tpwalking = false
-end
-
--- Function to enable Speed Bypass
-local function enableSpeedBypass()
-    enableTPWalk(9) -- Call TP Walk with speed 16
-end
-
--- Function to disable Speed Bypass
-local function disableSpeedBypass()
-    disableTPWalk() -- Disable TP Walk
-end
-
--- Function to enable Jump Power
-local function enableJumpPower()
-    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local humanoid = character:WaitForChild("Humanoid")
-    
-    humanoid.JumpPower = 85 -- Set to reduced Jump Power
-end
-
--- Function to disable Jump Power
-local function disableJumpPower()
-    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local humanoid = character:WaitForChild("Humanoid")
-    
-    humanoid.JumpPower = 50 -- Default JumpPower
-end
-
--- Toggle event connections
-InfiniteStaminaToggle:OnChanged(function()
-    if InfiniteStaminaToggle.Value then
-        enableInfiniteStamina()
-    end
-end)
-
-NoFallDamageToggle:OnChanged(function()
-    if NoFallDamageToggle.Value then
-        disableFallDamage()
-    end
-end)
-
-NoclipToggle:OnChanged(function()
-    if NoclipToggle.Value then
-        enableNoclip()
-        enableSpeedBypass() -- Enable Speed Bypass when Noclip is enabled
-        enableJumpPower() -- Enable Jump Power when Noclip is enabled
-    else
-        disableNoclip()
-        disableSpeedBypass() -- Disable Speed Bypass when Noclip is disabled
-        disableJumpPower() -- Disable Jump Power when Noclip is disabled
-    end
-end)
-
-SpeedBypassToggle:OnChanged(function()
-    if SpeedBypassToggle.Value then
-        enableSpeedBypass() -- Enable Speed Bypass
-    else
-        disableSpeedBypass() -- Disable Speed Bypass
-    end
-end)
-
-JumpPowerToggle:OnChanged(function()
-    if JumpPowerToggle.Value then
-        enableJumpPower()
-    else
-        disableJumpPower()
-    end
-end)
-
-Window.OnClosed:Connect(function()
-    -- Save any necessary settings before closing
 end)
